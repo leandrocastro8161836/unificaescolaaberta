@@ -1,0 +1,2074 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pesquisa de Escola — Educação SP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sp-azul:       #1A3C8F;
+      --sp-azul-claro: #2B5CE6;
+      --sp-verde:      #0D7A4E;
+      --sp-amarelo:    #F5B700;
+      --sp-creche:     #D14B2A;
+      --sp-livro:      #7B3FA6;
+      --sp-cinza-50:   #F9FAFB;
+      --sp-cinza-100:  #F3F4F6;
+      --sp-cinza-200:  #E5E7EB;
+      --sp-cinza-400:  #9CA3AF;
+      --sp-cinza-600:  #6B7280;
+      --sp-cinza-900:  #111827;
+      --radius: 12px;
+      --shadow: 0 2px 12px rgba(0,0,0,.07);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,.12);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--sp-cinza-50); color: var(--sp-cinza-900); font-size: 15px; line-height: 1.6; }
+
+    /* ── TOP BAR ── */
+    .topbar { background: var(--sp-azul); color: #fff; font-size: 12px; padding: 6px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .topbar a { color: #ADC4FF; text-decoration: none; }
+    .topbar-links { display: flex; gap: 20px; }
+
+    /* ── HEADER ── */
+    header { background: #fff; border-bottom: 1px solid var(--sp-cinza-200); position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 8px rgba(0,0,0,.06); }
+    .header-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-icon { width: 38px; height: 38px; background: var(--sp-azul); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 16px; }
+    .logo-text strong { font-family: 'Sora', sans-serif; font-size: 15px; color: var(--sp-azul); }
+    .logo-text span { font-size: 11px; color: var(--sp-cinza-600); display: block; line-height: 1; }
+    .breadcrumb { font-size: 13px; color: var(--sp-cinza-600); display: flex; align-items: center; gap: 6px; }
+    .breadcrumb a { color: var(--sp-azul-claro); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    /* ── PAGE HERO ── */
+    .page-hero { background: linear-gradient(135deg, var(--sp-azul) 0%, #0F2461 100%); color: #fff; padding: 40px 24px 56px; }
+    .page-hero-inner { max-width: 1280px; margin: 0 auto; }
+    .page-hero h1 { font-family: 'Sora', sans-serif; font-size: clamp(22px, 3.5vw, 36px); font-weight: 800; margin-bottom: 6px; }
+    .page-hero p  { opacity: .8; font-size: 15px; margin-bottom: 28px; }
+
+    /* ── SEARCH PANEL ── */
+    .search-panel { background: #fff; border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-lg); max-width: 900px; }
+    .search-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .search-field { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 6px; }
+    .search-field label { font-size: 12px; font-weight: 600; color: var(--sp-cinza-600); text-transform: uppercase; letter-spacing: .05em; }
+    .search-field input, .search-field select {
+      border: 1.5px solid var(--sp-cinza-200); border-radius: 8px;
+      padding: 10px 14px; font-size: 14px; font-family: 'Inter', sans-serif;
+      color: var(--sp-cinza-900); outline: none; background: #fff;
+      transition: border-color .15s;
+    }
+    .search-field input:focus, .search-field select:focus { border-color: var(--sp-azul-claro); }
+    .btn-buscar {
+      background: var(--sp-azul); color: #fff; border: none; border-radius: 8px;
+      padding: 10px 28px; font-size: 14px; font-weight: 700; font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: background .15s; align-self: flex-end; white-space: nowrap;
+    }
+    .btn-buscar:hover { background: var(--sp-azul-claro); }
+    .btn-buscar:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── MAIN LAYOUT ── */
+    .main { max-width: 1280px; margin: 0 auto; padding: 32px 24px; display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: start; }
+    @media (max-width: 900px) { .main { grid-template-columns: 1fr; } }
+
+    /* ── RESULTS LIST ── */
+    .results-panel { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .results-header { padding: 16px 20px; border-bottom: 1px solid var(--sp-cinza-200); display: flex; justify-content: space-between; align-items: center; }
+    .results-header h2 { font-size: 14px; font-weight: 700; }
+    .results-count { font-size: 12px; color: var(--sp-cinza-600); background: var(--sp-cinza-100); padding: 3px 10px; border-radius: 99px; }
+
+    .result-item {
+      padding: 16px 20px; border-bottom: 1px solid var(--sp-cinza-200);
+      cursor: pointer; transition: background .12s;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .result-item:last-child { border-bottom: none; }
+    .result-item:hover, .result-item.active { background: #EEF2FF; }
+    .result-item.active { border-left: 3px solid var(--sp-azul-claro); }
+    .ri-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .ri-emef  { background: #E8EDF9; }
+    .ri-emei  { background: #E6F5EE; }
+    .ri-cei   { background: #FEF0EC; }
+    .ri-default { background: var(--sp-cinza-100); }
+    .ri-body  { flex: 1; min-width: 0; }
+    .ri-code  { font-size: 10px; color: var(--sp-cinza-400); font-weight: 600; letter-spacing: .06em; }
+    .ri-name  { font-size: 13px; font-weight: 600; line-height: 1.3; margin: 2px 0; }
+    .ri-meta  { font-size: 12px; color: var(--sp-cinza-600); display: flex; gap: 8px; flex-wrap: wrap; }
+    .ri-tag   { background: var(--sp-cinza-100); padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+
+    .empty-state { padding: 48px 20px; text-align: center; color: var(--sp-cinza-400); }
+    .empty-state .es-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+
+    /* ── LOADING ── */
+    .loading-dots { display: inline-flex; gap: 4px; align-items: center; }
+    .loading-dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--sp-azul-claro); animation: bounce 1.2s infinite; }
+    .loading-dots span:nth-child(2) { animation-delay: .2s; }
+    .loading-dots span:nth-child(3) { animation-delay: .4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+    /* ── DETAIL PANEL ── */
+    .detail-panel { display: flex; flex-direction: column; gap: 20px; }
+
+    .detail-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .dc-header { padding: 20px 24px; border-bottom: 1px solid var(--sp-cinza-200); }
+    .dc-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; margin-bottom: 10px; }
+    .badge-emef { background: #E8EDF9; color: var(--sp-azul); }
+    .badge-emei { background: #E6F5EE; color: var(--sp-verde); }
+    .badge-cei  { background: #FEF0EC; color: var(--sp-creche); }
+    .badge-default { background: var(--sp-cinza-100); color: var(--sp-cinza-600); }
+
+    .dc-header h2 { font-family: 'Sora', sans-serif; font-size: 18px; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+    .dc-code { font-size: 12px; color: var(--sp-cinza-400); font-weight: 600; }
+    .dc-body { padding: 20px 24px; }
+
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .info-grid { grid-template-columns: 1fr; } }
+    .info-item label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--sp-cinza-400); display: block; margin-bottom: 3px; }
+    .info-item span  { font-size: 14px; color: var(--sp-cinza-900); }
+    .info-full { grid-column: 1/-1; }
+
+    /* tabs */
+    .dc-tabs { display: flex; border-bottom: 1px solid var(--sp-cinza-200); padding: 0 24px; overflow-x: auto; gap: 0; }
+    .dc-tab { padding: 12px 18px; font-size: 13px; font-weight: 600; color: var(--sp-cinza-600); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: color .15s, border-color .15s; }
+    .dc-tab.active { color: var(--sp-azul-claro); border-bottom-color: var(--sp-azul-claro); }
+    .dc-tab-content { display: none; padding: 20px 24px; }
+    .dc-tab-content.active { display: block; }
+
+    /* vagas */
+    .vagas-header { background: #FFF8F5; border: 1.5px solid #FDDDD3; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+    .vagas-header .vh-total { font-size: 28px; font-weight: 800; color: var(--sp-creche); font-family: 'Sora',sans-serif; }
+    .vagas-header p { font-size: 12px; color: #7A3020; margin-top: 4px; }
+    .vagas-note { font-size: 12px; color: var(--sp-cinza-600); background: var(--sp-cinza-100); border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+
+    .fila-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .fila-table th { text-align: left; padding: 8px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--sp-cinza-600); border-bottom: 1.5px solid var(--sp-cinza-200); }
+    .fila-table td { padding: 10px 10px; border-bottom: 1px solid var(--sp-cinza-200); vertical-align: top; }
+    .fila-table tr:last-child td { border-bottom: none; }
+    .fila-num { font-weight: 700; color: var(--sp-creche); }
+    .fila-tipo { font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+    .tp-parceira { background: #FEF0EC; color: var(--sp-creche); }
+    .tp-direta   { background: #E8EDF9; color: var(--sp-azul); }
+
+    /* PTRF / orçamento */
+    .ptrf-total { font-family: 'Sora',sans-serif; font-size: 32px; font-weight: 800; color: var(--sp-livro); margin: 8px 0; }
+    .ptrf-sub   { font-size: 12px; color: var(--sp-cinza-600); margin-bottom: 20px; }
+    .ptrf-bars  { display: flex; flex-direction: column; gap: 14px; }
+    .ptrf-bar-row { display: flex; align-items: center; gap: 12px; }
+    .ptrf-bar-label { font-size: 12px; color: var(--sp-cinza-600); width: 180px; flex-shrink: 0; }
+    .ptrf-bar-track { flex: 1; height: 10px; background: var(--sp-cinza-200); border-radius: 99px; overflow: hidden; }
+    .ptrf-bar-fill  { height: 100%; border-radius: 99px; background: var(--sp-livro); transition: width 1s ease; }
+    .ptrf-bar-val   { font-size: 12px; font-weight: 700; color: var(--sp-livro); min-width: 80px; text-align: right; }
+    .ptrf-rubrica-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+    .ptrf-rubrica { background: var(--sp-cinza-100); border-radius: 8px; padding: 12px; }
+    .ptrf-rubrica .pr-val { font-family: 'Sora',sans-serif; font-size: 16px; font-weight: 700; color: var(--sp-livro); }
+    .ptrf-rubrica .pr-lbl { font-size: 11px; color: var(--sp-cinza-600); margin-top: 2px; }
+
+    /* estatísticas */
+    .estat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 500px) { .estat-grid { grid-template-columns: 1fr 1fr; } }
+    .estat-item { background: var(--sp-cinza-100); border-radius: 8px; padding: 14px; text-align: center; }
+    .estat-val { font-family: 'Sora',sans-serif; font-size: 22px; font-weight: 800; color: var(--sp-azul); }
+    .estat-lbl { font-size: 11px; color: var(--sp-cinza-600); margin-top: 4px; }
+
+    /* IA assistant */
+    .ia-box { background: linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 100%); border: 1.5px solid #C7D2FE; border-radius: 10px; padding: 16px; margin-top: 16px; }
+    .ia-box .ia-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #4338CA; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .ia-box .ia-text { font-size: 13px; color: #1E1B4B; line-height: 1.6; }
+    .ia-loading { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #4338CA; }
+
+    /* mapa placeholder */
+    .map-placeholder { background: var(--sp-cinza-100); border-radius: 10px; height: 180px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; color: var(--sp-cinza-400); margin-bottom: 16px; border: 1.5px dashed var(--sp-cinza-200); }
+    .map-placeholder .mp-icon { font-size: 32px; }
+    .map-placeholder p { font-size: 12px; font-weight: 600; }
+    .map-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--sp-azul-claro); text-decoration: none; }
+    .map-link:hover { text-decoration: underline; }
+
+    /* update badge */
+    .update-badge { font-size: 11px; color: var(--sp-cinza-400); display: flex; align-items: center; gap: 4px; margin-top: 8px; }
+
+    /* skeleton */
+    .skeleton { background: linear-gradient(90deg, var(--sp-cinza-200) 25%, var(--sp-cinza-100) 50%, var(--sp-cinza-200) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .sk-line { height: 14px; margin-bottom: 8px; }
+    .sk-title { height: 22px; width: 70%; margin-bottom: 12px; }
+
+    /* chips de filtro */
+    .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; border: 1.5px solid transparent; }
+    .chip-all   { background: var(--sp-azul); color: #fff; }
+    .chip-emef  { background: #E8EDF9; color: var(--sp-azul); border-color: #C7D2FE; }
+    .chip-emei  { background: #E6F5EE; color: var(--sp-verde); border-color: #A7F3D0; }
+    .chip-cei   { background: #FEF0EC; color: var(--sp-creche); border-color: #FCA89A; }
+    .chip-outros{ background: var(--sp-cinza-100); color: var(--sp-cinza-600); border-color: var(--sp-cinza-200); }
+    .chip.selected, .chip:hover { opacity: 1; transform: scale(1.03); }
+    .chip:not(.selected) { opacity: .7; }
+
+    :focus-visible { outline: 3px solid var(--sp-amarelo); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <span>🏛️ Prefeitura de São Paulo — Secretaria Municipal de Educação</span>
+  <div class="topbar-links">
+    <a href="#">Acessibilidade</a>
+    <a href="#">Ouvidoria</a>
+    <a href="#">Libras</a>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a class="logo" href="#">
+      <div class="logo-icon">SP</div>
+      <div class="logo-text">
+        <strong>Educação SP</strong>
+        <span>Secretaria Municipal de Educação</span>
+      </div>
+    </a>
+    <div class="breadcrumb">
+      <a href="portal-sme-unificado.html">Início</a> <span>›</span> <strong>Pesquisa de Escola</strong>
+    </div>
+  </div>
+</header>
+
+<!-- PAGE HERO + BUSCA -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <h1>🔍 Pesquisa de Escola</h1>
+    <p>Encontre informações detalhadas de qualquer unidade da rede municipal — dados cadastrais, vagas em creches e orçamento PTRF.</p>
+    <div class="search-panel">
+      <div class="search-row">
+        <div class="search-field" style="flex: 2;">
+          <label>Nome ou código da escola</label>
+          <input type="text" id="inputBusca" placeholder="Ex: Sócrates Brasileiro, EMEF Jardim…" />
+        </div>
+        <div class="search-field">
+          <label>Tipo de unidade</label>
+          <select id="selectTipo">
+            <option value="">Todos</option>
+            <option value="EMEF">EMEF</option>
+            <option value="EMEI">EMEI</option>
+            <option value="CEI">CEI</option>
+            <option value="CEMEI">CEMEI</option>
+            <option value="CEU">CEU</option>
+          </select>
+        </div>
+        <div class="search-field">
+          <label>DRE</label>
+          <select id="selectDRE">
+            <option value="">Todas as DREs</option>
+            <option value="CAMPO LIMPO">Campo Limpo</option>
+            <option value="IPIRANGA">Ipiranga</option>
+            <option value="PENHA">Penha</option>
+            <option value="PIRITUBA">Pirituba</option>
+            <option value="SANTO AMARO">Santo Amaro</option>
+            <option value="GUAIANASES">Guaianases</option>
+            <option value="BUTANTÃ">Butantã</option>
+            <option value="JAÇANÃ">Jaçanã/Tremembé</option>
+            <option value="FREGUESIA">Freguesia/Brasilândia</option>
+            <option value="ITAQUERA">Itaquera</option>
+            <option value="VILA PRUDENTE">Vila Prudente</option>
+            <option value="VILA MARIA">Vila Maria/Vila Guilherme</option>
+            <option value="SÃO MATEUS">São Mateus</option>
+          </select>
+        </div>
+        <button class="btn-buscar" id="btnBuscar" onclick="buscarEscolas()">Buscar</button>
+      </div>
+      <div class="filter-chips" id="filterChips">
+        <span class="chip chip-all selected" onclick="filtrarTipo('')">Todas</span>
+        <span class="chip chip-emef" onclick="filtrarTipo('EMEF')">🏫 EMEF</span>
+        <span class="chip chip-emei" onclick="filtrarTipo('EMEI')">🌱 EMEI</span>
+        <span class="chip chip-cei"  onclick="filtrarTipo('CEI')">🍼 CEI</span>
+        <span class="chip chip-outros" onclick="filtrarTipo('OUTROS')">+ Outros</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main">
+
+  <!-- LISTA DE RESULTADOS -->
+  <div>
+    <div class="results-panel">
+      <div class="results-header">
+        <h2>Resultados</h2>
+        <span class="results-count" id="resultsCount">0 unidades</span>
+      </div>
+      <div id="resultsList">
+        <div class="empty-state">
+          <div class="es-icon">🏫</div>
+          <p>Digite o nome ou código da escola e clique em <strong>Buscar</strong> para encontrar unidades.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAINEL DE DETALHES -->
+  <div class="detail-panel" id="detailPanel">
+    <div class="detail-card">
+      <div class="dc-body" style="padding: 48px; text-align: center; color: var(--sp-cinza-400);">
+        <div style="font-size: 48px; margin-bottom: 16px;">👈</div>
+        <p style="font-size: 14px;">Selecione uma escola na lista para ver os detalhes completos.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// BASE DE DADOS DE EXEMPLO 
+// ═══════════════════════════════════════════════
+const ESCOLAS = [
+  {
+    codigo: "019428", nome: "EMEF SOCRATES BRASILEIRO SAMPAIO DE SOUSA VIEIRA DE OLIVEIRA",
+    tipo: "EMEF", dre: "CAMPO LIMPO", distrito: "CAMPO LIMPO",
+    endereco: "Rua PROFESSORA NINA STOCCO, 597", bairro: "JARDIM CATANDUVA",
+    cep: "05767-001", telefone: "(11) 5844-6286",
+    email: "emefsocratesbrasileiro@sme.prefeitura.sp.gov.br",
+    alunos: 892, turmas: 31, professores: 48,
+    ptrf_total: 287450.00,
+    ptrf_custeio: 201215.00, ptrf_capital: 86235.00,
+    ptrf_rubrica: { "Material Didático": 52000, "Manutenção": 78000, "Energia/Água": 45000, "Limpeza": 26215 },
+    vagas_creche: [],
+    ia_summary: null
+  },
+  {
+    codigo: "091529", nome: "CEI NOSSA SENHORA MAE DA IGREJA",
+    tipo: "CEI", dre: "IPIRANGA", distrito: "IPIRANGA",
+    endereco: "RUA LOEFGREEN, 67", bairro: "VILA CLEMENTINO",
+    cep: "04040-000", telefone: "(11) 5571-5017",
+    email: "CRPCONVNOSSASENHORAMAEDAIGREJA@SME.PREFEITURA.SP.GOV.BR",
+    alunos: 68, turmas: 4, professores: 12,
+    ptrf_total: 94800.00,
+    ptrf_custeio: 70400.00, ptrf_capital: 24400.00,
+    ptrf_rubrica: { "Material Pedagógico": 22000, "Manutenção": 28000, "Alimentação": 15000, "Higiene": 5400 },
+    vagas_creche: [
+      { grupo: "Mini Grupo I", aguardando: 1, tipo: "PARCEIRA" },
+      { grupo: "Mini Grupo II", aguardando: 0, tipo: "PARCEIRA" },
+      { grupo: "Maternal I", aguardando: 2, tipo: "PARCEIRA" },
+    ],
+    ia_summary: null
+  },
+  {
+    codigo: "091537", nome: "CEI ESTRELINHAS DO BOSQUE DA SAUDE",
+    tipo: "CEI", dre: "IPIRANGA", distrito: "SAÚDE",
+    endereco: "RUA BORGES LAGOA, 1550", bairro: "VILA CLEMENTINO",
+    cep: "04038-001", telefone: "(11) 5572-0834",
+    email: "ceiestrelinhasbosque@sme.prefeitura.sp.gov.br",
+    alunos: 72, turmas: 4, professores: 14,
+    ptrf_total: 98200.00,
+    ptrf_custeio: 73400.00, ptrf_capital: 24800.00,
+    ptrf_rubrica: { "Material Pedagógico": 24000, "Manutenção": 29000, "Alimentação": 14200, "Higiene": 6200 },
+    vagas_creche: [
+      { grupo: "Mini Grupo I", aguardando: 1, tipo: "PARCEIRA" },
+      { grupo: "Maternal I", aguardando: 3, tipo: "PARCEIRA" },
+    ],
+    ia_summary: null
+  },
+  {
+    codigo: "091545", nome: "CEI ISABEL II, PRINCESA",
+    tipo: "CEI", dre: "IPIRANGA", distrito: "IPIRANGA",
+    endereco: "RUA EUZEBIO DE QUEIROZ, 55", bairro: "IPIRANGA",
+    cep: "04218-000", telefone: "(11) 2062-4455",
+    email: "ceiisabelii@sme.prefeitura.sp.gov.br",
+    alunos: 55, turmas: 3, professores: 10,
+    ptrf_total: 76500.00,
+    ptrf_custeio: 56200.00, ptrf_capital: 20300.00,
+    ptrf_rubrica: { "Material Pedagógico": 18000, "Manutenção": 22000, "Alimentação": 11000, "Higiene": 5200 },
+    vagas_creche: [
+      { grupo: "Mini Grupo I", aguardando: 1, tipo: "PARCEIRA" },
+      { grupo: "Maternal II", aguardando: 2, tipo: "PARCEIRA" },
+    ],
+    ia_summary: null
+  },
+  {
+    codigo: "091553", nome: "CEI EDUARDO DE CAMPOS ROSMANINHO, DR",
+    tipo: "CEI", dre: "IPIRANGA", distrito: "IPIRANGA",
+    endereco: "RUA CIPRIANO BARATA, 240", bairro: "IPIRANGA",
+    cep: "04216-000", telefone: "(11) 2063-7890",
+    email: "ceieduardorosmaninho@sme.prefeitura.sp.gov.br",
+    alunos: 80, turmas: 5, professores: 16,
+    ptrf_total: 112000.00,
+    ptrf_custeio: 84000.00, ptrf_capital: 28000.00,
+    ptrf_rubrica: { "Material Pedagógico": 28000, "Manutenção": 35000, "Alimentação": 16000, "Higiene": 5000 },
+    vagas_creche: [
+      { grupo: "Mini Grupo I", aguardando: 1, tipo: "DIRETA" },
+      { grupo: "Mini Grupo II", aguardando: 4, tipo: "DIRETA" },
+      { grupo: "Maternal I", aguardando: 2, tipo: "DIRETA" },
+    ],
+    ia_summary: null
+  },
+  {
+    codigo: "002178", nome: "EMEI JARDIM CATANDUVA",
+    tipo: "EMEI", dre: "CAMPO LIMPO", distrito: "CAMPO LIMPO",
+    endereco: "Rua DOMINGOS PENTEADO, 255", bairro: "JARDIM CATANDUVA",
+    cep: "05768-000", telefone: "(11) 5844-7890",
+    email: "emeijardimcatanduva@sme.prefeitura.sp.gov.br",
+    alunos: 320, turmas: 12, professores: 18,
+    ptrf_total: 145600.00,
+    ptrf_custeio: 108000.00, ptrf_capital: 37600.00,
+    ptrf_rubrica: { "Material Pedagógico": 38000, "Manutenção": 42000, "Alimentação": 18000, "Higiene": 10000 },
+    vagas_creche: [],
+    ia_summary: null
+  },
+  {
+    codigo: "018503", nome: "EMEF CAMPO LIMPO",
+    tipo: "EMEF", dre: "CAMPO LIMPO", distrito: "CAMPO LIMPO",
+    endereco: "Av. CARLOS CALDEIRA FILHO, 3000", bairro: "CAMPO LIMPO",
+    cep: "05780-000", telefone: "(11) 5848-2200",
+    email: "emefcampolimpo@sme.prefeitura.sp.gov.br",
+    alunos: 1105, turmas: 36, professores: 62,
+    ptrf_total: 352800.00,
+    ptrf_custeio: 255000.00, ptrf_capital: 97800.00,
+    ptrf_rubrica: { "Material Didático": 68000, "Manutenção": 98000, "Energia/Água": 57000, "Limpeza": 32000 },
+    vagas_creche: [],
+    ia_summary: null
+  },{
+  codigo: "185001", nome: "EMEF ESCOLA MODELO 1",
+  tipo: "EMEF", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 1, 101", bairro: "ZONA SUL",
+  cep: "05701-000", telefone: "(11) 5000-1001",
+  email: "escola1@sme.prefeitura.sp.gov.br",
+  alunos: 310, turmas: 11, professores: 16,
+  ptrf_total: 205000.00,
+  ptrf_custeio: 153000.00, ptrf_capital: 52000.00,
+  ptrf_rubrica: { "Material Didático": 30500, "Manutenção": 50800, "Energia/Água": 25400, "Limpeza": 20300 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185002", nome: "EMEF ESCOLA MODELO 2",
+  tipo: "EMEF", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 2, 102", bairro: "ZONA LESTE",
+  cep: "05702-000", telefone: "(11) 5000-1002",
+  email: "escola2@sme.prefeitura.sp.gov.br",
+  alunos: 320, turmas: 12, professores: 17,
+  ptrf_total: 210000.00,
+  ptrf_custeio: 156000.00, ptrf_capital: 54000.00,
+  ptrf_rubrica: { "Material Didático": 31000, "Manutenção": 51600, "Energia/Água": 25800, "Limpeza": 20600 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185003", nome: "EMEF ESCOLA MODELO 3",
+  tipo: "EMEI", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 3, 103", bairro: "ZONA OESTE",
+  cep: "05703-000", telefone: "(11) 5000-1003",
+  email: "escola3@sme.prefeitura.sp.gov.br",
+  alunos: 330, turmas: 13, professores: 18,
+  ptrf_total: 215000.00,
+  ptrf_custeio: 159000.00, ptrf_capital: 56000.00,
+  ptrf_rubrica: { "Material Didático": 31500, "Manutenção": 52400, "Energia/Água": 26200, "Limpeza": 20900 },
+  vagas_creche: [53],
+  ia_summary: null
+},
+{
+  codigo: "185004", nome: "EMEF ESCOLA MODELO 4",
+  tipo: "EMEF", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 4, 104", bairro: "ZONA NORTE",
+  cep: "05704-000", telefone: "(11) 5000-1004",
+  email: "escola4@sme.prefeitura.sp.gov.br",
+  alunos: 340, turmas: 14, professores: 19,
+  ptrf_total: 220000.00,
+  ptrf_custeio: 162000.00, ptrf_capital: 58000.00,
+  ptrf_rubrica: { "Material Didático": 32000, "Manutenção": 53200, "Energia/Água": 26600, "Limpeza": 21200 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185005", nome: "EMEF ESCOLA MODELO 5",
+  tipo: "EMEF", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 5, 105", bairro: "CENTRO",
+  cep: "05705-000", telefone: "(11) 5000-1005",
+  email: "escola5@sme.prefeitura.sp.gov.br",
+  alunos: 350, turmas: 15, professores: 20,
+  ptrf_total: 225000.00,
+  ptrf_custeio: 165000.00, ptrf_capital: 60000.00,
+  ptrf_rubrica: { "Material Didático": 32500, "Manutenção": 54000, "Energia/Água": 27000, "Limpeza": 21500 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185006", nome: "EMEF ESCOLA MODELO 6",
+  tipo: "EMEI", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 6, 106", bairro: "ZONA SUL",
+  cep: "05706-000", telefone: "(11) 5000-1006",
+  email: "escola6@sme.prefeitura.sp.gov.br",
+  alunos: 360, turmas: 16, professores: 21,
+  ptrf_total: 230000.00,
+  ptrf_custeio: 168000.00, ptrf_capital: 62000.00,
+  ptrf_rubrica: { "Material Didático": 33000, "Manutenção": 54800, "Energia/Água": 27400, "Limpeza": 21800 },
+  vagas_creche: [56],
+  ia_summary: null
+},
+{
+  codigo: "185007", nome: "EMEF ESCOLA MODELO 7",
+  tipo: "EMEF", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 7, 107", bairro: "ZONA LESTE",
+  cep: "05707-000", telefone: "(11) 5000-1007",
+  email: "escola7@sme.prefeitura.sp.gov.br",
+  alunos: 370, turmas: 17, professores: 22,
+  ptrf_total: 235000.00,
+  ptrf_custeio: 171000.00, ptrf_capital: 64000.00,
+  ptrf_rubrica: { "Material Didático": 33500, "Manutenção": 55600, "Energia/Água": 27800, "Limpeza": 22100 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185008", nome: "EMEF ESCOLA MODELO 8",
+  tipo: "EMEF", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 8, 108", bairro: "ZONA OESTE",
+  cep: "05708-000", telefone: "(11) 5000-1008",
+  email: "escola8@sme.prefeitura.sp.gov.br",
+  alunos: 380, turmas: 18, professores: 23,
+  ptrf_total: 240000.00,
+  ptrf_custeio: 174000.00, ptrf_capital: 66000.00,
+  ptrf_rubrica: { "Material Didático": 34000, "Manutenção": 56400, "Energia/Água": 28200, "Limpeza": 22400 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185009", nome: "EMEF ESCOLA MODELO 9",
+  tipo: "EMEI", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 9, 109", bairro: "ZONA NORTE",
+  cep: "05709-000", telefone: "(11) 5000-1009",
+  email: "escola9@sme.prefeitura.sp.gov.br",
+  alunos: 390, turmas: 19, professores: 24,
+  ptrf_total: 245000.00,
+  ptrf_custeio: 177000.00, ptrf_capital: 68000.00,
+  ptrf_rubrica: { "Material Didático": 34500, "Manutenção": 57200, "Energia/Água": 28600, "Limpeza": 22700 },
+  vagas_creche: [59],
+  ia_summary: null
+},
+{
+  codigo: "185010", nome: "EMEF ESCOLA MODELO 10",
+  tipo: "EMEF", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 10, 110", bairro: "CENTRO",
+  cep: "05710-000", telefone: "(11) 5000-1010",
+  email: "escola10@sme.prefeitura.sp.gov.br",
+  alunos: 400, turmas: 20, professores: 25,
+  ptrf_total: 250000.00,
+  ptrf_custeio: 180000.00, ptrf_capital: 70000.00,
+  ptrf_rubrica: { "Material Didático": 35000, "Manutenção": 58000, "Energia/Água": 29000, "Limpeza": 23000 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185011", nome: "EMEF ESCOLA MODELO 11",
+  tipo: "EMEF", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 11, 111", bairro: "ZONA SUL",
+  cep: "05711-000", telefone: "(11) 5000-1011",
+  email: "escola11@sme.prefeitura.sp.gov.br",
+  alunos: 410, turmas: 21, professores: 26,
+  ptrf_total: 255000.00,
+  ptrf_custeio: 183000.00, ptrf_capital: 72000.00,
+  ptrf_rubrica: { "Material Didático": 35500, "Manutenção": 58800, "Energia/Água": 29400, "Limpeza": 23300 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185012", nome: "EMEF ESCOLA MODELO 12",
+  tipo: "EMEI", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 12, 112", bairro: "ZONA LESTE",
+  cep: "05712-000", telefone: "(11) 5000-1012",
+  email: "escola12@sme.prefeitura.sp.gov.br",
+  alunos: 420, turmas: 22, professores: 27,
+  ptrf_total: 260000.00,
+  ptrf_custeio: 186000.00, ptrf_capital: 74000.00,
+  ptrf_rubrica: { "Material Didático": 36000, "Manutenção": 59600, "Energia/Água": 29800, "Limpeza": 23600 },
+  vagas_creche: [62],
+  ia_summary: null
+},
+{
+  codigo: "185013", nome: "EMEF ESCOLA MODELO 13",
+  tipo: "EMEF", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 13, 113", bairro: "ZONA OESTE",
+  cep: "05713-000", telefone: "(11) 5000-1013",
+  email: "escola13@sme.prefeitura.sp.gov.br",
+  alunos: 430, turmas: 23, professores: 28,
+  ptrf_total: 265000.00,
+  ptrf_custeio: 189000.00, ptrf_capital: 76000.00,
+  ptrf_rubrica: { "Material Didático": 36500, "Manutenção": 60400, "Energia/Água": 30200, "Limpeza": 23900 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185014", nome: "EMEF ESCOLA MODELO 14",
+  tipo: "EMEF", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 14, 114", bairro: "ZONA NORTE",
+  cep: "05714-000", telefone: "(11) 5000-1014",
+  email: "escola14@sme.prefeitura.sp.gov.br",
+  alunos: 440, turmas: 24, professores: 29,
+  ptrf_total: 270000.00,
+  ptrf_custeio: 192000.00, ptrf_capital: 78000.00,
+  ptrf_rubrica: { "Material Didático": 37000, "Manutenção": 61200, "Energia/Água": 30600, "Limpeza": 24200 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185015", nome: "EMEF ESCOLA MODELO 15",
+  tipo: "EMEI", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 15, 115", bairro: "CENTRO",
+  cep: "05715-000", telefone: "(11) 5000-1015",
+  email: "escola15@sme.prefeitura.sp.gov.br",
+  alunos: 450, turmas: 25, professores: 30,
+  ptrf_total: 275000.00,
+  ptrf_custeio: 195000.00, ptrf_capital: 80000.00,
+  ptrf_rubrica: { "Material Didático": 37500, "Manutenção": 62000, "Energia/Água": 31000, "Limpeza": 24500 },
+  vagas_creche: [65],
+  ia_summary: null
+},
+{
+  codigo: "185016", nome: "EMEF ESCOLA MODELO 16",
+  tipo: "EMEF", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 16, 116", bairro: "ZONA SUL",
+  cep: "05716-000", telefone: "(11) 5000-1016",
+  email: "escola16@sme.prefeitura.sp.gov.br",
+  alunos: 460, turmas: 26, professores: 31,
+  ptrf_total: 280000.00,
+  ptrf_custeio: 198000.00, ptrf_capital: 82000.00,
+  ptrf_rubrica: { "Material Didático": 38000, "Manutenção": 62800, "Energia/Água": 31400, "Limpeza": 24800 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185017", nome: "EMEF ESCOLA MODELO 17",
+  tipo: "EMEF", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 17, 117", bairro: "ZONA LESTE",
+  cep: "05717-000", telefone: "(11) 5000-1017",
+  email: "escola17@sme.prefeitura.sp.gov.br",
+  alunos: 470, turmas: 27, professores: 32,
+  ptrf_total: 285000.00,
+  ptrf_custeio: 201000.00, ptrf_capital: 84000.00,
+  ptrf_rubrica: { "Material Didático": 38500, "Manutenção": 63600, "Energia/Água": 31800, "Limpeza": 25100 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185018", nome: "EMEF ESCOLA MODELO 18",
+  tipo: "EMEI", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 18, 118", bairro: "ZONA OESTE",
+  cep: "05718-000", telefone: "(11) 5000-1018",
+  email: "escola18@sme.prefeitura.sp.gov.br",
+  alunos: 480, turmas: 28, professores: 33,
+  ptrf_total: 290000.00,
+  ptrf_custeio: 204000.00, ptrf_capital: 86000.00,
+  ptrf_rubrica: { "Material Didático": 39000, "Manutenção": 64400, "Energia/Água": 32200, "Limpeza": 25400 },
+  vagas_creche: [68],
+  ia_summary: null
+},
+{
+  codigo: "185019", nome: "EMEF ESCOLA MODELO 19",
+  tipo: "EMEF", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 19, 119", bairro: "ZONA NORTE",
+  cep: "05719-000", telefone: "(11) 5000-1019",
+  email: "escola19@sme.prefeitura.sp.gov.br",
+  alunos: 490, turmas: 29, professores: 34,
+  ptrf_total: 295000.00,
+  ptrf_custeio: 207000.00, ptrf_capital: 88000.00,
+  ptrf_rubrica: { "Material Didático": 39500, "Manutenção": 65200, "Energia/Água": 32600, "Limpeza": 25700 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185020", nome: "EMEF ESCOLA MODELO 20",
+  tipo: "EMEF", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 20, 120", bairro: "CENTRO",
+  cep: "05720-000", telefone: "(11) 5000-1020",
+  email: "escola20@sme.prefeitura.sp.gov.br",
+  alunos: 500, turmas: 30, professores: 35,
+  ptrf_total: 300000.00,
+  ptrf_custeio: 210000.00, ptrf_capital: 90000.00,
+  ptrf_rubrica: { "Material Didático": 40000, "Manutenção": 66000, "Energia/Água": 33000, "Limpeza": 26000 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185021", nome: "EMEF ESCOLA MODELO 21",
+  tipo: "EMEI", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 21, 121", bairro: "ZONA SUL",
+  cep: "05721-000", telefone: "(11) 5000-1021",
+  email: "escola21@sme.prefeitura.sp.gov.br",
+  alunos: 510, turmas: 31, professores: 36,
+  ptrf_total: 305000.00,
+  ptrf_custeio: 213000.00, ptrf_capital: 92000.00,
+  ptrf_rubrica: { "Material Didático": 40500, "Manutenção": 66800, "Energia/Água": 33400, "Limpeza": 26300 },
+  vagas_creche: [71],
+  ia_summary: null
+},
+{
+  codigo: "185022", nome: "EMEF ESCOLA MODELO 22",
+  tipo: "EMEF", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 22, 122", bairro: "ZONA LESTE",
+  cep: "05722-000", telefone: "(11) 5000-1022",
+  email: "escola22@sme.prefeitura.sp.gov.br",
+  alunos: 520, turmas: 32, professores: 37,
+  ptrf_total: 310000.00,
+  ptrf_custeio: 216000.00, ptrf_capital: 94000.00,
+  ptrf_rubrica: { "Material Didático": 41000, "Manutenção": 67600, "Energia/Água": 33800, "Limpeza": 26600 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185023", nome: "EMEF ESCOLA MODELO 23",
+  tipo: "EMEF", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 23, 123", bairro: "ZONA OESTE",
+  cep: "05723-000", telefone: "(11) 5000-1023",
+  email: "escola23@sme.prefeitura.sp.gov.br",
+  alunos: 530, turmas: 33, professores: 38,
+  ptrf_total: 315000.00,
+  ptrf_custeio: 219000.00, ptrf_capital: 96000.00,
+  ptrf_rubrica: { "Material Didático": 41500, "Manutenção": 68400, "Energia/Água": 34200, "Limpeza": 26900 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185024", nome: "EMEF ESCOLA MODELO 24",
+  tipo: "EMEI", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 24, 124", bairro: "ZONA NORTE",
+  cep: "05724-000", telefone: "(11) 5000-1024",
+  email: "escola24@sme.prefeitura.sp.gov.br",
+  alunos: 540, turmas: 34, professores: 39,
+  ptrf_total: 320000.00,
+  ptrf_custeio: 222000.00, ptrf_capital: 98000.00,
+  ptrf_rubrica: { "Material Didático": 42000, "Manutenção": 69200, "Energia/Água": 34600, "Limpeza": 27200 },
+  vagas_creche: [74],
+  ia_summary: null
+},
+{
+  codigo: "185025", nome: "EMEF ESCOLA MODELO 25",
+  tipo: "EMEF", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 25, 125", bairro: "CENTRO",
+  cep: "05725-000", telefone: "(11) 5000-1025",
+  email: "escola25@sme.prefeitura.sp.gov.br",
+  alunos: 550, turmas: 35, professores: 40,
+  ptrf_total: 325000.00,
+  ptrf_custeio: 225000.00, ptrf_capital: 100000.00,
+  ptrf_rubrica: { "Material Didático": 42500, "Manutenção": 70000, "Energia/Água": 35000, "Limpeza": 27500 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185026", nome: "EMEF ESCOLA MODELO 26",
+  tipo: "EMEF", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 26, 126", bairro: "ZONA SUL",
+  cep: "05726-000", telefone: "(11) 5000-1026",
+  email: "escola26@sme.prefeitura.sp.gov.br",
+  alunos: 560, turmas: 36, professores: 41,
+  ptrf_total: 330000.00,
+  ptrf_custeio: 228000.00, ptrf_capital: 102000.00,
+  ptrf_rubrica: { "Material Didático": 43000, "Manutenção": 70800, "Energia/Água": 35400, "Limpeza": 27800 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185027", nome: "EMEF ESCOLA MODELO 27",
+  tipo: "EMEI", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 27, 127", bairro: "ZONA LESTE",
+  cep: "05727-000", telefone: "(11) 5000-1027",
+  email: "escola27@sme.prefeitura.sp.gov.br",
+  alunos: 570, turmas: 37, professores: 42,
+  ptrf_total: 335000.00,
+  ptrf_custeio: 231000.00, ptrf_capital: 104000.00,
+  ptrf_rubrica: { "Material Didático": 43500, "Manutenção": 71600, "Energia/Água": 35800, "Limpeza": 28100 },
+  vagas_creche: [77],
+  ia_summary: null
+},
+{
+  codigo: "185028", nome: "EMEF ESCOLA MODELO 28",
+  tipo: "EMEF", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 28, 128", bairro: "ZONA OESTE",
+  cep: "05728-000", telefone: "(11) 5000-1028",
+  email: "escola28@sme.prefeitura.sp.gov.br",
+  alunos: 580, turmas: 38, professores: 43,
+  ptrf_total: 340000.00,
+  ptrf_custeio: 234000.00, ptrf_capital: 106000.00,
+  ptrf_rubrica: { "Material Didático": 44000, "Manutenção": 72400, "Energia/Água": 36200, "Limpeza": 28400 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185029", nome: "EMEF ESCOLA MODELO 29",
+  tipo: "EMEF", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 29, 129", bairro: "ZONA NORTE",
+  cep: "05729-000", telefone: "(11) 5000-1029",
+  email: "escola29@sme.prefeitura.sp.gov.br",
+  alunos: 590, turmas: 39, professores: 44,
+  ptrf_total: 345000.00,
+  ptrf_custeio: 237000.00, ptrf_capital: 108000.00,
+  ptrf_rubrica: { "Material Didático": 44500, "Manutenção": 73200, "Energia/Água": 36600, "Limpeza": 28700 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185030", nome: "EMEF ESCOLA MODELO 30",
+  tipo: "EMEI", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 30, 130", bairro: "CENTRO",
+  cep: "05730-000", telefone: "(11) 5000-1030",
+  email: "escola30@sme.prefeitura.sp.gov.br",
+  alunos: 600, turmas: 10, professores: 45,
+  ptrf_total: 350000.00,
+  ptrf_custeio: 240000.00, ptrf_capital: 110000.00,
+  ptrf_rubrica: { "Material Didático": 45000, "Manutenção": 74000, "Energia/Água": 37000, "Limpeza": 29000 },
+  vagas_creche: [80],
+  ia_summary: null
+},
+{
+  codigo: "185031", nome: "EMEF ESCOLA MODELO 31",
+  tipo: "EMEF", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 31, 131", bairro: "ZONA SUL",
+  cep: "05731-000", telefone: "(11) 5000-1031",
+  email: "escola31@sme.prefeitura.sp.gov.br",
+  alunos: 610, turmas: 11, professores: 46,
+  ptrf_total: 355000.00,
+  ptrf_custeio: 243000.00, ptrf_capital: 112000.00,
+  ptrf_rubrica: { "Material Didático": 45500, "Manutenção": 74800, "Energia/Água": 37400, "Limpeza": 29300 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185032", nome: "EMEF ESCOLA MODELO 32",
+  tipo: "EMEF", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 32, 132", bairro: "ZONA LESTE",
+  cep: "05732-000", telefone: "(11) 5000-1032",
+  email: "escola32@sme.prefeitura.sp.gov.br",
+  alunos: 620, turmas: 12, professores: 47,
+  ptrf_total: 360000.00,
+  ptrf_custeio: 246000.00, ptrf_capital: 114000.00,
+  ptrf_rubrica: { "Material Didático": 46000, "Manutenção": 75600, "Energia/Água": 37800, "Limpeza": 29600 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185033", nome: "EMEF ESCOLA MODELO 33",
+  tipo: "EMEI", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 33, 133", bairro: "ZONA OESTE",
+  cep: "05733-000", telefone: "(11) 5000-1033",
+  email: "escola33@sme.prefeitura.sp.gov.br",
+  alunos: 630, turmas: 13, professores: 48,
+  ptrf_total: 365000.00,
+  ptrf_custeio: 249000.00, ptrf_capital: 116000.00,
+  ptrf_rubrica: { "Material Didático": 46500, "Manutenção": 76400, "Energia/Água": 38200, "Limpeza": 29900 },
+  vagas_creche: [83],
+  ia_summary: null
+},
+{
+  codigo: "185034", nome: "EMEF ESCOLA MODELO 34",
+  tipo: "EMEF", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 34, 134", bairro: "ZONA NORTE",
+  cep: "05734-000", telefone: "(11) 5000-1034",
+  email: "escola34@sme.prefeitura.sp.gov.br",
+  alunos: 640, turmas: 14, professores: 49,
+  ptrf_total: 370000.00,
+  ptrf_custeio: 252000.00, ptrf_capital: 118000.00,
+  ptrf_rubrica: { "Material Didático": 47000, "Manutenção": 77200, "Energia/Água": 38600, "Limpeza": 30200 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185035", nome: "EMEF ESCOLA MODELO 35",
+  tipo: "EMEF", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 35, 135", bairro: "CENTRO",
+  cep: "05735-000", telefone: "(11) 5000-1035",
+  email: "escola35@sme.prefeitura.sp.gov.br",
+  alunos: 650, turmas: 15, professores: 50,
+  ptrf_total: 375000.00,
+  ptrf_custeio: 255000.00, ptrf_capital: 120000.00,
+  ptrf_rubrica: { "Material Didático": 47500, "Manutenção": 78000, "Energia/Água": 39000, "Limpeza": 30500 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185036", nome: "EMEF ESCOLA MODELO 36",
+  tipo: "EMEI", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 36, 136", bairro: "ZONA SUL",
+  cep: "05736-000", telefone: "(11) 5000-1036",
+  email: "escola36@sme.prefeitura.sp.gov.br",
+  alunos: 660, turmas: 16, professores: 51,
+  ptrf_total: 380000.00,
+  ptrf_custeio: 258000.00, ptrf_capital: 122000.00,
+  ptrf_rubrica: { "Material Didático": 48000, "Manutenção": 78800, "Energia/Água": 39400, "Limpeza": 30800 },
+  vagas_creche: [86],
+  ia_summary: null
+},
+{
+  codigo: "185037", nome: "EMEF ESCOLA MODELO 37",
+  tipo: "EMEF", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 37, 137", bairro: "ZONA LESTE",
+  cep: "05737-000", telefone: "(11) 5000-1037",
+  email: "escola37@sme.prefeitura.sp.gov.br",
+  alunos: 670, turmas: 17, professores: 52,
+  ptrf_total: 385000.00,
+  ptrf_custeio: 261000.00, ptrf_capital: 124000.00,
+  ptrf_rubrica: { "Material Didático": 48500, "Manutenção": 79600, "Energia/Água": 39800, "Limpeza": 31100 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185038", nome: "EMEF ESCOLA MODELO 38",
+  tipo: "EMEF", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 38, 138", bairro: "ZONA OESTE",
+  cep: "05738-000", telefone: "(11) 5000-1038",
+  email: "escola38@sme.prefeitura.sp.gov.br",
+  alunos: 680, turmas: 18, professores: 53,
+  ptrf_total: 390000.00,
+  ptrf_custeio: 264000.00, ptrf_capital: 126000.00,
+  ptrf_rubrica: { "Material Didático": 49000, "Manutenção": 80400, "Energia/Água": 40200, "Limpeza": 31400 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185039", nome: "EMEF ESCOLA MODELO 39",
+  tipo: "EMEI", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 39, 139", bairro: "ZONA NORTE",
+  cep: "05739-000", telefone: "(11) 5000-1039",
+  email: "escola39@sme.prefeitura.sp.gov.br",
+  alunos: 690, turmas: 19, professores: 54,
+  ptrf_total: 395000.00,
+  ptrf_custeio: 267000.00, ptrf_capital: 128000.00,
+  ptrf_rubrica: { "Material Didático": 49500, "Manutenção": 81200, "Energia/Água": 40600, "Limpeza": 31700 },
+  vagas_creche: [89],
+  ia_summary: null
+},
+{
+  codigo: "185040", nome: "EMEF ESCOLA MODELO 40",
+  tipo: "EMEF", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 40, 140", bairro: "CENTRO",
+  cep: "05740-000", telefone: "(11) 5000-1040",
+  email: "escola40@sme.prefeitura.sp.gov.br",
+  alunos: 700, turmas: 20, professores: 55,
+  ptrf_total: 400000.00,
+  ptrf_custeio: 270000.00, ptrf_capital: 130000.00,
+  ptrf_rubrica: { "Material Didático": 50000, "Manutenção": 82000, "Energia/Água": 41000, "Limpeza": 32000 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185041", nome: "EMEF ESCOLA MODELO 41",
+  tipo: "EMEF", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 41, 141", bairro: "ZONA SUL",
+  cep: "05741-000", telefone: "(11) 5000-1041",
+  email: "escola41@sme.prefeitura.sp.gov.br",
+  alunos: 710, turmas: 21, professores: 56,
+  ptrf_total: 405000.00,
+  ptrf_custeio: 273000.00, ptrf_capital: 132000.00,
+  ptrf_rubrica: { "Material Didático": 50500, "Manutenção": 82800, "Energia/Água": 41400, "Limpeza": 32300 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185042", nome: "EMEF ESCOLA MODELO 42",
+  tipo: "EMEI", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 42, 142", bairro: "ZONA LESTE",
+  cep: "05742-000", telefone: "(11) 5000-1042",
+  email: "escola42@sme.prefeitura.sp.gov.br",
+  alunos: 720, turmas: 22, professores: 57,
+  ptrf_total: 410000.00,
+  ptrf_custeio: 276000.00, ptrf_capital: 134000.00,
+  ptrf_rubrica: { "Material Didático": 51000, "Manutenção": 83600, "Energia/Água": 41800, "Limpeza": 32600 },
+  vagas_creche: [92],
+  ia_summary: null
+},
+{
+  codigo: "185043", nome: "EMEF ESCOLA MODELO 43",
+  tipo: "EMEF", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 43, 143", bairro: "ZONA OESTE",
+  cep: "05743-000", telefone: "(11) 5000-1043",
+  email: "escola43@sme.prefeitura.sp.gov.br",
+  alunos: 730, turmas: 23, professores: 58,
+  ptrf_total: 415000.00,
+  ptrf_custeio: 279000.00, ptrf_capital: 136000.00,
+  ptrf_rubrica: { "Material Didático": 51500, "Manutenção": 84400, "Energia/Água": 42200, "Limpeza": 32900 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185044", nome: "EMEF ESCOLA MODELO 44",
+  tipo: "EMEF", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 44, 144", bairro: "ZONA NORTE",
+  cep: "05744-000", telefone: "(11) 5000-1044",
+  email: "escola44@sme.prefeitura.sp.gov.br",
+  alunos: 740, turmas: 24, professores: 59,
+  ptrf_total: 420000.00,
+  ptrf_custeio: 282000.00, ptrf_capital: 138000.00,
+  ptrf_rubrica: { "Material Didático": 52000, "Manutenção": 85200, "Energia/Água": 42600, "Limpeza": 33200 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185045", nome: "EMEF ESCOLA MODELO 45",
+  tipo: "EMEI", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 45, 145", bairro: "CENTRO",
+  cep: "05745-000", telefone: "(11) 5000-1045",
+  email: "escola45@sme.prefeitura.sp.gov.br",
+  alunos: 750, turmas: 25, professores: 60,
+  ptrf_total: 425000.00,
+  ptrf_custeio: 285000.00, ptrf_capital: 140000.00,
+  ptrf_rubrica: { "Material Didático": 52500, "Manutenção": 86000, "Energia/Água": 43000, "Limpeza": 33500 },
+  vagas_creche: [95],
+  ia_summary: null
+},
+{
+  codigo: "185046", nome: "EMEF ESCOLA MODELO 46",
+  tipo: "EMEF", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 46, 146", bairro: "ZONA SUL",
+  cep: "05746-000", telefone: "(11) 5000-1046",
+  email: "escola46@sme.prefeitura.sp.gov.br",
+  alunos: 760, turmas: 26, professores: 61,
+  ptrf_total: 430000.00,
+  ptrf_custeio: 288000.00, ptrf_capital: 142000.00,
+  ptrf_rubrica: { "Material Didático": 53000, "Manutenção": 86800, "Energia/Água": 43400, "Limpeza": 33800 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185047", nome: "EMEF ESCOLA MODELO 47",
+  tipo: "EMEF", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 47, 147", bairro: "ZONA LESTE",
+  cep: "05747-000", telefone: "(11) 5000-1047",
+  email: "escola47@sme.prefeitura.sp.gov.br",
+  alunos: 770, turmas: 27, professores: 62,
+  ptrf_total: 435000.00,
+  ptrf_custeio: 291000.00, ptrf_capital: 144000.00,
+  ptrf_rubrica: { "Material Didático": 53500, "Manutenção": 87600, "Energia/Água": 43800, "Limpeza": 34100 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185048", nome: "EMEF ESCOLA MODELO 48",
+  tipo: "EMEI", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 48, 148", bairro: "ZONA OESTE",
+  cep: "05748-000", telefone: "(11) 5000-1048",
+  email: "escola48@sme.prefeitura.sp.gov.br",
+  alunos: 780, turmas: 28, professores: 63,
+  ptrf_total: 440000.00,
+  ptrf_custeio: 294000.00, ptrf_capital: 146000.00,
+  ptrf_rubrica: { "Material Didático": 54000, "Manutenção": 88400, "Energia/Água": 44200, "Limpeza": 34400 },
+  vagas_creche: [98],
+  ia_summary: null
+},
+{
+  codigo: "185049", nome: "EMEF ESCOLA MODELO 49",
+  tipo: "EMEF", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 49, 149", bairro: "ZONA NORTE",
+  cep: "05749-000", telefone: "(11) 5000-1049",
+  email: "escola49@sme.prefeitura.sp.gov.br",
+  alunos: 790, turmas: 29, professores: 64,
+  ptrf_total: 445000.00,
+  ptrf_custeio: 297000.00, ptrf_capital: 148000.00,
+  ptrf_rubrica: { "Material Didático": 54500, "Manutenção": 89200, "Energia/Água": 44600, "Limpeza": 34700 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185050", nome: "EMEF ESCOLA MODELO 50",
+  tipo: "EMEF", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 50, 150", bairro: "CENTRO",
+  cep: "05750-000", telefone: "(11) 5000-1050",
+  email: "escola50@sme.prefeitura.sp.gov.br",
+  alunos: 800, turmas: 30, professores: 15,
+  ptrf_total: 450000.00,
+  ptrf_custeio: 300000.00, ptrf_capital: 150000.00,
+  ptrf_rubrica: { "Material Didático": 55000, "Manutenção": 90000, "Energia/Água": 45000, "Limpeza": 35000 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185051", nome: "EMEF ESCOLA MODELO 51",
+  tipo: "EMEI", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 51, 151", bairro: "ZONA SUL",
+  cep: "05751-000", telefone: "(11) 5000-1051",
+  email: "escola51@sme.prefeitura.sp.gov.br",
+  alunos: 810, turmas: 31, professores: 16,
+  ptrf_total: 455000.00,
+  ptrf_custeio: 303000.00, ptrf_capital: 152000.00,
+  ptrf_rubrica: { "Material Didático": 55500, "Manutenção": 90800, "Energia/Água": 45400, "Limpeza": 35300 },
+  vagas_creche: [101],
+  ia_summary: null
+},
+{
+  codigo: "185052", nome: "EMEF ESCOLA MODELO 52",
+  tipo: "EMEF", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 52, 152", bairro: "ZONA LESTE",
+  cep: "05752-000", telefone: "(11) 5000-1052",
+  email: "escola52@sme.prefeitura.sp.gov.br",
+  alunos: 820, turmas: 32, professores: 17,
+  ptrf_total: 460000.00,
+  ptrf_custeio: 306000.00, ptrf_capital: 154000.00,
+  ptrf_rubrica: { "Material Didático": 56000, "Manutenção": 91600, "Energia/Água": 45800, "Limpeza": 35600 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185053", nome: "EMEF ESCOLA MODELO 53",
+  tipo: "EMEF", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 53, 153", bairro: "ZONA OESTE",
+  cep: "05753-000", telefone: "(11) 5000-1053",
+  email: "escola53@sme.prefeitura.sp.gov.br",
+  alunos: 830, turmas: 33, professores: 18,
+  ptrf_total: 465000.00,
+  ptrf_custeio: 309000.00, ptrf_capital: 156000.00,
+  ptrf_rubrica: { "Material Didático": 56500, "Manutenção": 92400, "Energia/Água": 46200, "Limpeza": 35900 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185054", nome: "EMEF ESCOLA MODELO 54",
+  tipo: "EMEI", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 54, 154", bairro: "ZONA NORTE",
+  cep: "05754-000", telefone: "(11) 5000-1054",
+  email: "escola54@sme.prefeitura.sp.gov.br",
+  alunos: 840, turmas: 34, professores: 19,
+  ptrf_total: 470000.00,
+  ptrf_custeio: 312000.00, ptrf_capital: 158000.00,
+  ptrf_rubrica: { "Material Didático": 57000, "Manutenção": 93200, "Energia/Água": 46600, "Limpeza": 36200 },
+  vagas_creche: [104],
+  ia_summary: null
+},
+{
+  codigo: "185055", nome: "EMEF ESCOLA MODELO 55",
+  tipo: "EMEF", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 55, 155", bairro: "CENTRO",
+  cep: "05755-000", telefone: "(11) 5000-1055",
+  email: "escola55@sme.prefeitura.sp.gov.br",
+  alunos: 850, turmas: 35, professores: 20,
+  ptrf_total: 475000.00,
+  ptrf_custeio: 315000.00, ptrf_capital: 160000.00,
+  ptrf_rubrica: { "Material Didático": 57500, "Manutenção": 94000, "Energia/Água": 47000, "Limpeza": 36500 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185056", nome: "EMEF ESCOLA MODELO 56",
+  tipo: "EMEF", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 56, 156", bairro: "ZONA SUL",
+  cep: "05756-000", telefone: "(11) 5000-1056",
+  email: "escola56@sme.prefeitura.sp.gov.br",
+  alunos: 860, turmas: 36, professores: 21,
+  ptrf_total: 480000.00,
+  ptrf_custeio: 318000.00, ptrf_capital: 162000.00,
+  ptrf_rubrica: { "Material Didático": 58000, "Manutenção": 94800, "Energia/Água": 47400, "Limpeza": 36800 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185057", nome: "EMEF ESCOLA MODELO 57",
+  tipo: "EMEI", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 57, 157", bairro: "ZONA LESTE",
+  cep: "05757-000", telefone: "(11) 5000-1057",
+  email: "escola57@sme.prefeitura.sp.gov.br",
+  alunos: 870, turmas: 37, professores: 22,
+  ptrf_total: 485000.00,
+  ptrf_custeio: 321000.00, ptrf_capital: 164000.00,
+  ptrf_rubrica: { "Material Didático": 58500, "Manutenção": 95600, "Energia/Água": 47800, "Limpeza": 37100 },
+  vagas_creche: [107],
+  ia_summary: null
+},
+{
+  codigo: "185058", nome: "EMEF ESCOLA MODELO 58",
+  tipo: "EMEF", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 58, 158", bairro: "ZONA OESTE",
+  cep: "05758-000", telefone: "(11) 5000-1058",
+  email: "escola58@sme.prefeitura.sp.gov.br",
+  alunos: 880, turmas: 38, professores: 23,
+  ptrf_total: 490000.00,
+  ptrf_custeio: 324000.00, ptrf_capital: 166000.00,
+  ptrf_rubrica: { "Material Didático": 59000, "Manutenção": 96400, "Energia/Água": 48200, "Limpeza": 37400 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185059", nome: "EMEF ESCOLA MODELO 59",
+  tipo: "EMEF", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 59, 159", bairro: "ZONA NORTE",
+  cep: "05759-000", telefone: "(11) 5000-1059",
+  email: "escola59@sme.prefeitura.sp.gov.br",
+  alunos: 890, turmas: 39, professores: 24,
+  ptrf_total: 495000.00,
+  ptrf_custeio: 327000.00, ptrf_capital: 168000.00,
+  ptrf_rubrica: { "Material Didático": 59500, "Manutenção": 97200, "Energia/Água": 48600, "Limpeza": 37700 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185060", nome: "EMEF ESCOLA MODELO 60",
+  tipo: "EMEI", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 60, 160", bairro: "CENTRO",
+  cep: "05760-000", telefone: "(11) 5000-1060",
+  email: "escola60@sme.prefeitura.sp.gov.br",
+  alunos: 900, turmas: 10, professores: 25,
+  ptrf_total: 500000.00,
+  ptrf_custeio: 330000.00, ptrf_capital: 170000.00,
+  ptrf_rubrica: { "Material Didático": 60000, "Manutenção": 98000, "Energia/Água": 49000, "Limpeza": 38000 },
+  vagas_creche: [110],
+  ia_summary: null
+},
+{
+  codigo: "185061", nome: "EMEF ESCOLA MODELO 61",
+  tipo: "EMEF", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 61, 161", bairro: "ZONA SUL",
+  cep: "05761-000", telefone: "(11) 5000-1061",
+  email: "escola61@sme.prefeitura.sp.gov.br",
+  alunos: 910, turmas: 11, professores: 26,
+  ptrf_total: 505000.00,
+  ptrf_custeio: 333000.00, ptrf_capital: 172000.00,
+  ptrf_rubrica: { "Material Didático": 60500, "Manutenção": 98800, "Energia/Água": 49400, "Limpeza": 38300 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185062", nome: "EMEF ESCOLA MODELO 62",
+  tipo: "EMEF", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 62, 162", bairro: "ZONA LESTE",
+  cep: "05762-000", telefone: "(11) 5000-1062",
+  email: "escola62@sme.prefeitura.sp.gov.br",
+  alunos: 920, turmas: 12, professores: 27,
+  ptrf_total: 510000.00,
+  ptrf_custeio: 336000.00, ptrf_capital: 174000.00,
+  ptrf_rubrica: { "Material Didático": 61000, "Manutenção": 99600, "Energia/Água": 49800, "Limpeza": 38600 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185063", nome: "EMEF ESCOLA MODELO 63",
+  tipo: "EMEI", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 63, 163", bairro: "ZONA OESTE",
+  cep: "05763-000", telefone: "(11) 5000-1063",
+  email: "escola63@sme.prefeitura.sp.gov.br",
+  alunos: 930, turmas: 13, professores: 28,
+  ptrf_total: 515000.00,
+  ptrf_custeio: 339000.00, ptrf_capital: 176000.00,
+  ptrf_rubrica: { "Material Didático": 61500, "Manutenção": 100400, "Energia/Água": 50200, "Limpeza": 38900 },
+  vagas_creche: [113],
+  ia_summary: null
+},
+{
+  codigo: "185064", nome: "EMEF ESCOLA MODELO 64",
+  tipo: "EMEF", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 64, 164", bairro: "ZONA NORTE",
+  cep: "05764-000", telefone: "(11) 5000-1064",
+  email: "escola64@sme.prefeitura.sp.gov.br",
+  alunos: 940, turmas: 14, professores: 29,
+  ptrf_total: 520000.00,
+  ptrf_custeio: 342000.00, ptrf_capital: 178000.00,
+  ptrf_rubrica: { "Material Didático": 62000, "Manutenção": 101200, "Energia/Água": 50600, "Limpeza": 39200 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185065", nome: "EMEF ESCOLA MODELO 65",
+  tipo: "EMEF", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 65, 165", bairro: "CENTRO",
+  cep: "05765-000", telefone: "(11) 5000-1065",
+  email: "escola65@sme.prefeitura.sp.gov.br",
+  alunos: 950, turmas: 15, professores: 30,
+  ptrf_total: 525000.00,
+  ptrf_custeio: 345000.00, ptrf_capital: 180000.00,
+  ptrf_rubrica: { "Material Didático": 62500, "Manutenção": 102000, "Energia/Água": 51000, "Limpeza": 39500 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185066", nome: "EMEF ESCOLA MODELO 66",
+  tipo: "EMEI", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 66, 166", bairro: "ZONA SUL",
+  cep: "05766-000", telefone: "(11) 5000-1066",
+  email: "escola66@sme.prefeitura.sp.gov.br",
+  alunos: 960, turmas: 16, professores: 31,
+  ptrf_total: 530000.00,
+  ptrf_custeio: 348000.00, ptrf_capital: 182000.00,
+  ptrf_rubrica: { "Material Didático": 63000, "Manutenção": 102800, "Energia/Água": 51400, "Limpeza": 39800 },
+  vagas_creche: [116],
+  ia_summary: null
+},
+{
+  codigo: "185067", nome: "EMEF ESCOLA MODELO 67",
+  tipo: "EMEF", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 67, 167", bairro: "ZONA LESTE",
+  cep: "05767-000", telefone: "(11) 5000-1067",
+  email: "escola67@sme.prefeitura.sp.gov.br",
+  alunos: 970, turmas: 17, professores: 32,
+  ptrf_total: 535000.00,
+  ptrf_custeio: 351000.00, ptrf_capital: 184000.00,
+  ptrf_rubrica: { "Material Didático": 63500, "Manutenção": 103600, "Energia/Água": 51800, "Limpeza": 40100 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185068", nome: "EMEF ESCOLA MODELO 68",
+  tipo: "EMEF", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 68, 168", bairro: "ZONA OESTE",
+  cep: "05768-000", telefone: "(11) 5000-1068",
+  email: "escola68@sme.prefeitura.sp.gov.br",
+  alunos: 980, turmas: 18, professores: 33,
+  ptrf_total: 540000.00,
+  ptrf_custeio: 354000.00, ptrf_capital: 186000.00,
+  ptrf_rubrica: { "Material Didático": 64000, "Manutenção": 104400, "Energia/Água": 52200, "Limpeza": 40400 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185069", nome: "EMEF ESCOLA MODELO 69",
+  tipo: "EMEI", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 69, 169", bairro: "ZONA NORTE",
+  cep: "05769-000", telefone: "(11) 5000-1069",
+  email: "escola69@sme.prefeitura.sp.gov.br",
+  alunos: 990, turmas: 19, professores: 34,
+  ptrf_total: 545000.00,
+  ptrf_custeio: 357000.00, ptrf_capital: 188000.00,
+  ptrf_rubrica: { "Material Didático": 64500, "Manutenção": 105200, "Energia/Água": 52600, "Limpeza": 40700 },
+  vagas_creche: [119],
+  ia_summary: null
+},
+{
+  codigo: "185070", nome: "EMEF ESCOLA MODELO 70",
+  tipo: "EMEF", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 70, 170", bairro: "CENTRO",
+  cep: "05770-000", telefone: "(11) 5000-1070",
+  email: "escola70@sme.prefeitura.sp.gov.br",
+  alunos: 1000, turmas: 20, professores: 35,
+  ptrf_total: 550000.00,
+  ptrf_custeio: 360000.00, ptrf_capital: 190000.00,
+  ptrf_rubrica: { "Material Didático": 65000, "Manutenção": 106000, "Energia/Água": 53000, "Limpeza": 41000 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185071", nome: "EMEF ESCOLA MODELO 71",
+  tipo: "EMEF", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 71, 171", bairro: "ZONA SUL",
+  cep: "05771-000", telefone: "(11) 5000-1071",
+  email: "escola71@sme.prefeitura.sp.gov.br",
+  alunos: 1010, turmas: 21, professores: 36,
+  ptrf_total: 555000.00,
+  ptrf_custeio: 363000.00, ptrf_capital: 192000.00,
+  ptrf_rubrica: { "Material Didático": 65500, "Manutenção": 106800, "Energia/Água": 53400, "Limpeza": 41300 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185072", nome: "EMEF ESCOLA MODELO 72",
+  tipo: "EMEI", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 72, 172", bairro: "ZONA LESTE",
+  cep: "05772-000", telefone: "(11) 5000-1072",
+  email: "escola72@sme.prefeitura.sp.gov.br",
+  alunos: 1020, turmas: 22, professores: 37,
+  ptrf_total: 560000.00,
+  ptrf_custeio: 366000.00, ptrf_capital: 194000.00,
+  ptrf_rubrica: { "Material Didático": 66000, "Manutenção": 107600, "Energia/Água": 53800, "Limpeza": 41600 },
+  vagas_creche: [122],
+  ia_summary: null
+},
+{
+  codigo: "185073", nome: "EMEF ESCOLA MODELO 73",
+  tipo: "EMEF", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 73, 173", bairro: "ZONA OESTE",
+  cep: "05773-000", telefone: "(11) 5000-1073",
+  email: "escola73@sme.prefeitura.sp.gov.br",
+  alunos: 1030, turmas: 23, professores: 38,
+  ptrf_total: 565000.00,
+  ptrf_custeio: 369000.00, ptrf_capital: 196000.00,
+  ptrf_rubrica: { "Material Didático": 66500, "Manutenção": 108400, "Energia/Água": 54200, "Limpeza": 41900 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185074", nome: "EMEF ESCOLA MODELO 74",
+  tipo: "EMEF", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 74, 174", bairro: "ZONA NORTE",
+  cep: "05774-000", telefone: "(11) 5000-1074",
+  email: "escola74@sme.prefeitura.sp.gov.br",
+  alunos: 1040, turmas: 24, professores: 39,
+  ptrf_total: 570000.00,
+  ptrf_custeio: 372000.00, ptrf_capital: 198000.00,
+  ptrf_rubrica: { "Material Didático": 67000, "Manutenção": 109200, "Energia/Água": 54600, "Limpeza": 42200 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185075", nome: "EMEF ESCOLA MODELO 75",
+  tipo: "EMEI", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 75, 175", bairro: "CENTRO",
+  cep: "05775-000", telefone: "(11) 5000-1075",
+  email: "escola75@sme.prefeitura.sp.gov.br",
+  alunos: 1050, turmas: 25, professores: 40,
+  ptrf_total: 575000.00,
+  ptrf_custeio: 375000.00, ptrf_capital: 200000.00,
+  ptrf_rubrica: { "Material Didático": 67500, "Manutenção": 110000, "Energia/Água": 55000, "Limpeza": 42500 },
+  vagas_creche: [125],
+  ia_summary: null
+},
+{
+  codigo: "185076", nome: "EMEF ESCOLA MODELO 76",
+  tipo: "EMEF", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 76, 176", bairro: "ZONA SUL",
+  cep: "05776-000", telefone: "(11) 5000-1076",
+  email: "escola76@sme.prefeitura.sp.gov.br",
+  alunos: 1060, turmas: 26, professores: 41,
+  ptrf_total: 580000.00,
+  ptrf_custeio: 378000.00, ptrf_capital: 202000.00,
+  ptrf_rubrica: { "Material Didático": 68000, "Manutenção": 110800, "Energia/Água": 55400, "Limpeza": 42800 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185077", nome: "EMEF ESCOLA MODELO 77",
+  tipo: "EMEF", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 77, 177", bairro: "ZONA LESTE",
+  cep: "05777-000", telefone: "(11) 5000-1077",
+  email: "escola77@sme.prefeitura.sp.gov.br",
+  alunos: 1070, turmas: 27, professores: 42,
+  ptrf_total: 585000.00,
+  ptrf_custeio: 381000.00, ptrf_capital: 204000.00,
+  ptrf_rubrica: { "Material Didático": 68500, "Manutenção": 111600, "Energia/Água": 55800, "Limpeza": 43100 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185078", nome: "EMEF ESCOLA MODELO 78",
+  tipo: "EMEI", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 78, 178", bairro: "ZONA OESTE",
+  cep: "05778-000", telefone: "(11) 5000-1078",
+  email: "escola78@sme.prefeitura.sp.gov.br",
+  alunos: 1080, turmas: 28, professores: 43,
+  ptrf_total: 590000.00,
+  ptrf_custeio: 384000.00, ptrf_capital: 206000.00,
+  ptrf_rubrica: { "Material Didático": 69000, "Manutenção": 112400, "Energia/Água": 56200, "Limpeza": 43400 },
+  vagas_creche: [128],
+  ia_summary: null
+},
+{
+  codigo: "185079", nome: "EMEF ESCOLA MODELO 79",
+  tipo: "EMEF", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 79, 179", bairro: "ZONA NORTE",
+  cep: "05779-000", telefone: "(11) 5000-1079",
+  email: "escola79@sme.prefeitura.sp.gov.br",
+  alunos: 1090, turmas: 29, professores: 44,
+  ptrf_total: 595000.00,
+  ptrf_custeio: 387000.00, ptrf_capital: 208000.00,
+  ptrf_rubrica: { "Material Didático": 69500, "Manutenção": 113200, "Energia/Água": 56600, "Limpeza": 43700 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185080", nome: "EMEF ESCOLA MODELO 80",
+  tipo: "EMEF", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 80, 180", bairro: "CENTRO",
+  cep: "05780-000", telefone: "(11) 5000-1080",
+  email: "escola80@sme.prefeitura.sp.gov.br",
+  alunos: 1100, turmas: 30, professores: 45,
+  ptrf_total: 600000.00,
+  ptrf_custeio: 390000.00, ptrf_capital: 210000.00,
+  ptrf_rubrica: { "Material Didático": 70000, "Manutenção": 114000, "Energia/Água": 57000, "Limpeza": 44000 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185081", nome: "EMEF ESCOLA MODELO 81",
+  tipo: "EMEI", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 81, 181", bairro: "ZONA SUL",
+  cep: "05781-000", telefone: "(11) 5000-1081",
+  email: "escola81@sme.prefeitura.sp.gov.br",
+  alunos: 1110, turmas: 31, professores: 46,
+  ptrf_total: 605000.00,
+  ptrf_custeio: 393000.00, ptrf_capital: 212000.00,
+  ptrf_rubrica: { "Material Didático": 70500, "Manutenção": 114800, "Energia/Água": 57400, "Limpeza": 44300 },
+  vagas_creche: [131],
+  ia_summary: null
+},
+{
+  codigo: "185082", nome: "EMEF ESCOLA MODELO 82",
+  tipo: "EMEF", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 82, 182", bairro: "ZONA LESTE",
+  cep: "05782-000", telefone: "(11) 5000-1082",
+  email: "escola82@sme.prefeitura.sp.gov.br",
+  alunos: 1120, turmas: 32, professores: 47,
+  ptrf_total: 610000.00,
+  ptrf_custeio: 396000.00, ptrf_capital: 214000.00,
+  ptrf_rubrica: { "Material Didático": 71000, "Manutenção": 115600, "Energia/Água": 57800, "Limpeza": 44600 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185083", nome: "EMEF ESCOLA MODELO 83",
+  tipo: "EMEF", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 83, 183", bairro: "ZONA OESTE",
+  cep: "05783-000", telefone: "(11) 5000-1083",
+  email: "escola83@sme.prefeitura.sp.gov.br",
+  alunos: 1130, turmas: 33, professores: 48,
+  ptrf_total: 615000.00,
+  ptrf_custeio: 399000.00, ptrf_capital: 216000.00,
+  ptrf_rubrica: { "Material Didático": 71500, "Manutenção": 116400, "Energia/Água": 58200, "Limpeza": 44900 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185084", nome: "EMEF ESCOLA MODELO 84",
+  tipo: "EMEI", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 84, 184", bairro: "ZONA NORTE",
+  cep: "05784-000", telefone: "(11) 5000-1084",
+  email: "escola84@sme.prefeitura.sp.gov.br",
+  alunos: 1140, turmas: 34, professores: 49,
+  ptrf_total: 620000.00,
+  ptrf_custeio: 402000.00, ptrf_capital: 218000.00,
+  ptrf_rubrica: { "Material Didático": 72000, "Manutenção": 117200, "Energia/Água": 58600, "Limpeza": 45200 },
+  vagas_creche: [134],
+  ia_summary: null
+},
+{
+  codigo: "185085", nome: "EMEF ESCOLA MODELO 85",
+  tipo: "EMEF", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 85, 185", bairro: "CENTRO",
+  cep: "05785-000", telefone: "(11) 5000-1085",
+  email: "escola85@sme.prefeitura.sp.gov.br",
+  alunos: 1150, turmas: 35, professores: 50,
+  ptrf_total: 625000.00,
+  ptrf_custeio: 405000.00, ptrf_capital: 220000.00,
+  ptrf_rubrica: { "Material Didático": 72500, "Manutenção": 118000, "Energia/Água": 59000, "Limpeza": 45500 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185086", nome: "EMEF ESCOLA MODELO 86",
+  tipo: "EMEF", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 86, 186", bairro: "ZONA SUL",
+  cep: "05786-000", telefone: "(11) 5000-1086",
+  email: "escola86@sme.prefeitura.sp.gov.br",
+  alunos: 1160, turmas: 36, professores: 51,
+  ptrf_total: 630000.00,
+  ptrf_custeio: 408000.00, ptrf_capital: 222000.00,
+  ptrf_rubrica: { "Material Didático": 73000, "Manutenção": 118800, "Energia/Água": 59400, "Limpeza": 45800 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185087", nome: "EMEF ESCOLA MODELO 87",
+  tipo: "EMEI", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 87, 187", bairro: "ZONA LESTE",
+  cep: "05787-000", telefone: "(11) 5000-1087",
+  email: "escola87@sme.prefeitura.sp.gov.br",
+  alunos: 1170, turmas: 37, professores: 52,
+  ptrf_total: 635000.00,
+  ptrf_custeio: 411000.00, ptrf_capital: 224000.00,
+  ptrf_rubrica: { "Material Didático": 73500, "Manutenção": 119600, "Energia/Água": 59800, "Limpeza": 46100 },
+  vagas_creche: [137],
+  ia_summary: null
+},
+{
+  codigo: "185088", nome: "EMEF ESCOLA MODELO 88",
+  tipo: "EMEF", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 88, 188", bairro: "ZONA OESTE",
+  cep: "05788-000", telefone: "(11) 5000-1088",
+  email: "escola88@sme.prefeitura.sp.gov.br",
+  alunos: 1180, turmas: 38, professores: 53,
+  ptrf_total: 640000.00,
+  ptrf_custeio: 414000.00, ptrf_capital: 226000.00,
+  ptrf_rubrica: { "Material Didático": 74000, "Manutenção": 120400, "Energia/Água": 60200, "Limpeza": 46400 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185089", nome: "EMEF ESCOLA MODELO 89",
+  tipo: "EMEF", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 89, 189", bairro: "ZONA NORTE",
+  cep: "05789-000", telefone: "(11) 5000-1089",
+  email: "escola89@sme.prefeitura.sp.gov.br",
+  alunos: 1190, turmas: 39, professores: 54,
+  ptrf_total: 645000.00,
+  ptrf_custeio: 417000.00, ptrf_capital: 228000.00,
+  ptrf_rubrica: { "Material Didático": 74500, "Manutenção": 121200, "Energia/Água": 60600, "Limpeza": 46700 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185090", nome: "EMEF ESCOLA MODELO 90",
+  tipo: "EMEI", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 90, 190", bairro: "CENTRO",
+  cep: "05790-000", telefone: "(11) 5000-1090",
+  email: "escola90@sme.prefeitura.sp.gov.br",
+  alunos: 1200, turmas: 10, professores: 55,
+  ptrf_total: 650000.00,
+  ptrf_custeio: 420000.00, ptrf_capital: 230000.00,
+  ptrf_rubrica: { "Material Didático": 75000, "Manutenção": 122000, "Energia/Água": 61000, "Limpeza": 47000 },
+  vagas_creche: [140],
+  ia_summary: null
+},
+{
+  codigo: "185091", nome: "EMEF ESCOLA MODELO 91",
+  tipo: "EMEF", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 91, 191", bairro: "ZONA SUL",
+  cep: "05791-000", telefone: "(11) 5000-1091",
+  email: "escola91@sme.prefeitura.sp.gov.br",
+  alunos: 1210, turmas: 11, professores: 56,
+  ptrf_total: 655000.00,
+  ptrf_custeio: 423000.00, ptrf_capital: 232000.00,
+  ptrf_rubrica: { "Material Didático": 75500, "Manutenção": 122800, "Energia/Água": 61400, "Limpeza": 47300 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185092", nome: "EMEF ESCOLA MODELO 92",
+  tipo: "EMEF", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 92, 192", bairro: "ZONA LESTE",
+  cep: "05792-000", telefone: "(11) 5000-1092",
+  email: "escola92@sme.prefeitura.sp.gov.br",
+  alunos: 1220, turmas: 12, professores: 57,
+  ptrf_total: 660000.00,
+  ptrf_custeio: 426000.00, ptrf_capital: 234000.00,
+  ptrf_rubrica: { "Material Didático": 76000, "Manutenção": 123600, "Energia/Água": 61800, "Limpeza": 47600 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185093", nome: "EMEF ESCOLA MODELO 93",
+  tipo: "EMEI", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 93, 193", bairro: "ZONA OESTE",
+  cep: "05793-000", telefone: "(11) 5000-1093",
+  email: "escola93@sme.prefeitura.sp.gov.br",
+  alunos: 1230, turmas: 13, professores: 58,
+  ptrf_total: 665000.00,
+  ptrf_custeio: 429000.00, ptrf_capital: 236000.00,
+  ptrf_rubrica: { "Material Didático": 76500, "Manutenção": 124400, "Energia/Água": 62200, "Limpeza": 47900 },
+  vagas_creche: [143],
+  ia_summary: null
+},
+{
+  codigo: "185094", nome: "EMEF ESCOLA MODELO 94",
+  tipo: "EMEF", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 94, 194", bairro: "ZONA NORTE",
+  cep: "05794-000", telefone: "(11) 5000-1094",
+  email: "escola94@sme.prefeitura.sp.gov.br",
+  alunos: 1240, turmas: 14, professores: 59,
+  ptrf_total: 670000.00,
+  ptrf_custeio: 432000.00, ptrf_capital: 238000.00,
+  ptrf_rubrica: { "Material Didático": 77000, "Manutenção": 125200, "Energia/Água": 62600, "Limpeza": 48200 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185095", nome: "EMEF ESCOLA MODELO 95",
+  tipo: "EMEF", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 95, 195", bairro: "CENTRO",
+  cep: "05795-000", telefone: "(11) 5000-1095",
+  email: "escola95@sme.prefeitura.sp.gov.br",
+  alunos: 1250, turmas: 15, professores: 60,
+  ptrf_total: 675000.00,
+  ptrf_custeio: 435000.00, ptrf_capital: 240000.00,
+  ptrf_rubrica: { "Material Didático": 77500, "Manutenção": 126000, "Energia/Água": 63000, "Limpeza": 48500 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185096", nome: "EMEF ESCOLA MODELO 96",
+  tipo: "EMEI", dre: "PIRITUBA", distrito: "VILA SONIA",
+  endereco: "Rua 96, 196", bairro: "ZONA SUL",
+  cep: "05796-000", telefone: "(11) 5000-1096",
+  email: "escola96@sme.prefeitura.sp.gov.br",
+  alunos: 1260, turmas: 16, professores: 61,
+  ptrf_total: 680000.00,
+  ptrf_custeio: 438000.00, ptrf_capital: 242000.00,
+  ptrf_rubrica: { "Material Didático": 78000, "Manutenção": 126800, "Energia/Água": 63400, "Limpeza": 48800 },
+  vagas_creche: [146],
+  ia_summary: null
+},
+{
+  codigo: "185097", nome: "EMEF ESCOLA MODELO 97",
+  tipo: "EMEF", dre: "IPIRANGA", distrito: "CAPÃO REDONDO",
+  endereco: "Rua 97, 197", bairro: "ZONA LESTE",
+  cep: "05797-000", telefone: "(11) 5000-1097",
+  email: "escola97@sme.prefeitura.sp.gov.br",
+  alunos: 1270, turmas: 17, professores: 62,
+  ptrf_total: 685000.00,
+  ptrf_custeio: 441000.00, ptrf_capital: 244000.00,
+  ptrf_rubrica: { "Material Didático": 78500, "Manutenção": 127600, "Energia/Água": 63800, "Limpeza": 49100 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185098", nome: "EMEF ESCOLA MODELO 98",
+  tipo: "EMEF", dre: "BUTANTÃ", distrito: "SAPOPEMBA",
+  endereco: "Rua 98, 198", bairro: "ZONA OESTE",
+  cep: "05798-000", telefone: "(11) 5000-1098",
+  email: "escola98@sme.prefeitura.sp.gov.br",
+  alunos: 1280, turmas: 18, professores: 63,
+  ptrf_total: 690000.00,
+  ptrf_custeio: 444000.00, ptrf_capital: 246000.00,
+  ptrf_rubrica: { "Material Didático": 79000, "Manutenção": 128400, "Energia/Água": 64200, "Limpeza": 49400 },
+  vagas_creche: [],
+  ia_summary: null
+},
+{
+  codigo: "185099", nome: "EMEF ESCOLA MODELO 99",
+  tipo: "EMEI", dre: "ITAQUERA", distrito: "PENHA",
+  endereco: "Rua 99, 199", bairro: "ZONA NORTE",
+  cep: "05799-000", telefone: "(11) 5000-1099",
+  email: "escola99@sme.prefeitura.sp.gov.br",
+  alunos: 1290, turmas: 19, professores: 64,
+  ptrf_total: 695000.00,
+  ptrf_custeio: 447000.00, ptrf_capital: 248000.00,
+  ptrf_rubrica: { "Material Didático": 79500, "Manutenção": 129200, "Energia/Água": 64600, "Limpeza": 49700 },
+  vagas_creche: [149],
+  ia_summary: null
+},
+{
+  codigo: "185100", nome: "EMEF ESCOLA MODELO 100",
+  tipo: "EMEF", dre: "CAMPO LIMPO", distrito: "CENTRO",
+  endereco: "Rua 100, 200", bairro: "CENTRO",
+  cep: "05800-000", telefone: "(11) 5000-1100",
+  email: "escola100@sme.prefeitura.sp.gov.br",
+  alunos: 1300, turmas: 20, professores: 15,
+  ptrf_total: 700000.00,
+  ptrf_custeio: 450000.00, ptrf_capital: 250000.00,
+  ptrf_rubrica: { "Material Didático": 80000, "Manutenção": 130000, "Energia/Água": 65000, "Limpeza": 50000 },
+  vagas_creche: [],
+  ia_summary: null
+}
+
+];
+
+let escolaSelecionada = null;
+let filtroTipoAtivo = '';
+let resultadosFiltrados = [];
+
+// ═══════════════════════════════════════════════
+// BUSCA
+// ═══════════════════════════════════════════════
+function buscarEscolas() {
+  const q    = document.getElementById('inputBusca').value.trim().toLowerCase();
+  const tipo = document.getElementById('selectTipo').value;
+  const dre  = document.getElementById('selectDRE').value;
+
+  let resultados = ESCOLAS.filter(e => {
+    const matchQ   = !q || e.nome.toLowerCase().includes(q) || e.codigo.includes(q) || e.bairro.toLowerCase().includes(q);
+    const matchT   = !tipo || e.tipo === tipo;
+    const matchDRE = !dre  || e.dre  === dre;
+    const matchChip= !filtroTipoAtivo || (filtroTipoAtivo === 'OUTROS' ? !['EMEF','EMEI','CEI'].includes(e.tipo) : e.tipo === filtroTipoAtivo);
+    return matchQ && matchT && matchDRE && matchChip;
+  });
+
+  resultadosFiltrados = resultados;
+  renderResultados(resultados);
+}
+
+function filtrarTipo(tipo) {
+  filtroTipoAtivo = tipo;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  const map = {'':'chip-all','EMEF':'chip-emef','EMEI':'chip-emei','CEI':'chip-cei','OUTROS':'chip-outros'};
+  document.querySelector('.' + (map[tipo] || 'chip-all')).classList.add('selected');
+  buscarEscolas();
+}
+
+function renderResultados(lista) {
+  const el = document.getElementById('resultsList');
+  document.getElementById('resultsCount').textContent = lista.length + ' unidade' + (lista.length !== 1 ? 's' : '');
+
+  if (!lista.length) {
+    el.innerHTML = `<div class="empty-state"><div class="es-icon">🔍</div><p>Nenhuma unidade encontrada. Tente outro termo ou filtro.</p></div>`;
+    return;
+  }
+
+  el.innerHTML = lista.map(e => `
+    <div class="result-item ${escolaSelecionada?.codigo === e.codigo ? 'active' : ''}" onclick="selecionarEscola('${e.codigo}')">
+      <div class="ri-icon ri-${e.tipo.toLowerCase().replace(/[^a-z]/g,'')} ri-default">${iconeEscola(e.tipo)}</div>
+      <div class="ri-body">
+        <div class="ri-code">${e.codigo}</div>
+        <div class="ri-name">${toTitleCase(e.nome)}</div>
+        <div class="ri-meta">
+          <span class="ri-tag">${e.tipo}</span>
+          <span>${toTitleCase(e.dre)}</span>
+          <span>${toTitleCase(e.bairro)}</span>
+          ${e.vagas_creche.some(v=>v.aguardando>0) ? '<span style="color:var(--sp-creche);font-weight:700">🍼 Fila ativa</span>' : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+// DETALHE
+// ═══════════════════════════════════════════════
+function selecionarEscola(codigo) {
+  const escola = ESCOLAS.find(e => e.codigo === codigo);
+  if (!escola) return;
+  escolaSelecionada = escola;
+
+  // Atualiza seleção visual na lista
+  document.querySelectorAll('.result-item').forEach((el, i) => {
+    const isActive = resultadosFiltrados[i]?.codigo === codigo;
+    el.classList.toggle('active', isActive);
+  });
+
+  renderDetalhe(escola);
+}
+
+function renderDetalhe(escola) {
+  const dp = document.getElementById('detailPanel');
+
+  const totalVagas = escola.vagas_creche.reduce((s, v) => s + v.aguardando, 0);
+  const temCreche  = escola.vagas_creche.length > 0;
+
+  dp.innerHTML = `
+    <div class="detail-card">
+      <div class="dc-header">
+        <span class="dc-badge badge-${escola.tipo.toLowerCase().replace(/[^a-z]/g,'')[0] === 'e' && escola.tipo === 'EMEF' ? 'emef' : escola.tipo === 'EMEI' ? 'emei' : escola.tipo === 'CEI' ? 'cei' : 'default'}">
+          ${iconeEscola(escola.tipo)} ${escola.tipo}
+        </span>
+        <h2>${toTitleCase(escola.nome)}</h2>
+        <div class="dc-code">Código EOL: ${escola.codigo} &nbsp;·&nbsp; DRE ${toTitleCase(escola.dre)} &nbsp;·&nbsp; Distrito ${toTitleCase(escola.distrito)}</div>
+      </div>
+
+      <div class="dc-tabs" id="tabsBar">
+        <div class="dc-tab active" onclick="switchTab('cadastro')">📋 Cadastro</div>
+        ${temCreche ? `<div class="dc-tab" onclick="switchTab('vagas')">🍼 Fila de Vagas</div>` : ''}
+        <div class="dc-tab" onclick="switchTab('ptrf')">💰 PTRF / Orçamento</div>
+        <div class="dc-tab" onclick="switchTab('stats')">📊 Estatísticas</div>
+        <!-- <div class="dc-tab" onclick="switchTab('ia')">✨ Resumo IA</div> -->
+      </div>
+
+      <!-- TAB CADASTRO -->
+      <div class="dc-tab-content active" id="tab-cadastro">
+        <div class="map-placeholder">
+          <div class="mp-icon">🗺️</div>
+          <p>${escola.endereco}, ${toTitleCase(escola.bairro)} — CEP ${escola.cep}</p>
+        </div>
+        <div class="info-grid">
+          <div class="info-item info-full">
+            <label>Endereço completo</label>
+            <span>${escola.endereco}, ${toTitleCase(escola.bairro)} — CEP ${escola.cep}</span>
+          </div>
+          <div class="info-item">
+            <label>Telefone</label>
+            <span>${escola.telefone}</span>
+          </div>
+          <div class="info-item">
+            <label>E-mail</label>
+            <span style="font-size:12px; word-break:break-all;">${escola.email.toLowerCase()}</span>
+          </div>
+          <div class="info-item">
+            <label>DRE</label>
+            <span>${toTitleCase(escola.dre)}</span>
+          </div>
+          <div class="info-item">
+            <label>Distrito</label>
+            <span>${toTitleCase(escola.distrito)}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB VAGAS -->
+      ${temCreche ? `
+      <div class="dc-tab-content" id="tab-vagas">
+        <div class="vagas-header">
+          <div class="vh-total">${totalVagas} criança${totalVagas !== 1 ? 's' : ''} aguardando</div>
+          <p>Total na fila de espera nesta unidade — dados de ${new Date().toLocaleDateString('pt-BR')} às 09:00</p>
+        </div>
+        <div class="vagas-note">ℹ️ O total de crianças aguardando vaga pode ser menor que a soma por grupo, pois uma mesma criança pode constar no cadastro de espera de várias unidades.</div>
+        <table class="fila-table">
+          <thead><tr><th>Grupo</th><th>Aguardando</th><th>Modalidade</th></tr></thead>
+          <tbody>
+            ${escola.vagas_creche.map(v => `
+              <tr>
+                <td>${v.grupo}</td>
+                <td class="fila-num">${v.aguardando}</td>
+                <td><span class="fila-tipo tp-${v.tipo.toLowerCase()}">${v.tipo}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div class="update-badge">🕐 Dados atualizados em ${new Date().toLocaleDateString('pt-BR')} às 09:00:00</div>
+      </div>` : ''}
+
+      <!-- TAB PTRF -->
+      <div class="dc-tab-content" id="tab-ptrf">
+        <div class="ptrf-total">${formatBRL(escola.ptrf_total)}</div>
+        <div class="ptrf-sub">Total recebido via PTRF (Programa de Transferência de Recursos Financeiros) — último exercício disponível</div>
+        <div class="ptrf-bars">
+          <div class="ptrf-bar-row">
+            <span class="ptrf-bar-label">Custeio</span>
+            <div class="ptrf-bar-track"><div class="ptrf-bar-fill" style="width: ${Math.round(escola.ptrf_custeio/escola.ptrf_total*100)}%"></div></div>
+            <span class="ptrf-bar-val">${formatBRL(escola.ptrf_custeio)}</span>
+          </div>
+          <div class="ptrf-bar-row">
+            <span class="ptrf-bar-label">Capital</span>
+            <div class="ptrf-bar-track"><div class="ptrf-bar-fill" style="width: ${Math.round(escola.ptrf_capital/escola.ptrf_total*100)}%; background: #A78BFA"></div></div>
+            <span class="ptrf-bar-val" style="color:#7C3AED">${formatBRL(escola.ptrf_capital)}</span>
+          </div>
+        </div>
+        <div class="ptrf-rubrica-grid">
+          ${Object.entries(escola.ptrf_rubrica).map(([k,v]) => `
+            <div class="ptrf-rubrica">
+              <div class="pr-val">${formatBRL(v)}</div>
+              <div class="pr-lbl">${k}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="update-badge" style="margin-top:16px">📊 Fonte: Livro Aberto SME — Regionalização Orçamentária</div>
+      </div>
+
+      <!-- TAB ESTATÍSTICAS -->
+      <div class="dc-tab-content" id="tab-stats">
+        <div class="estat-grid">
+          <div class="estat-item">
+            <div class="estat-val">${escola.alunos.toLocaleString('pt-BR')}</div>
+            <div class="estat-lbl">Alunos matriculados</div>
+          </div>
+          <div class="estat-item">
+            <div class="estat-val">${escola.turmas}</div>
+            <div class="estat-lbl">Turmas</div>
+          </div>
+          <div class="estat-item">
+            <div class="estat-val">${escola.professores}</div>
+            <div class="estat-lbl">Professores</div>
+          </div>
+          <div class="estat-item">
+            <div class="estat-val">${Math.round(escola.alunos/escola.turmas)}</div>
+            <div class="estat-lbl">Alunos/turma (média)</div>
+          </div>
+          <div class="estat-item">
+            <div class="estat-val">${Math.round(escola.alunos/escola.professores)}</div>
+            <div class="estat-lbl">Alunos/professor</div>
+          </div>
+          <div class="estat-item">
+            <div class="estat-val">${formatBRL(escola.ptrf_total/escola.alunos)}</div>
+            <div class="estat-lbl">PTRF per capita</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB IA -->
+      <div class="dc-tab-content" id="tab-ia">
+        <div class="ia-box">
+          <div class="ia-label">✨ Assistente IA — Análise da Unidade</div>
+          <div id="iaContent">
+            ${escola.ia_summary
+              ? `<div class="ia-text">${escola.ia_summary}</div>`
+              : `<div style="text-align:center; padding: 12px 0;">
+                   <button onclick="gerarResumoIA('${escola.codigo}')" style="background:var(--sp-azul);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;">
+                     ✨ Gerar análise com IA
+                   </button>
+                   <p style="font-size:12px;color:var(--sp-cinza-600);margin-top:8px;">Usa os dados desta unidade para gerar um resumo contextualizado</p>
+                 </div>`
+            }
+          </div>
+        </div>
+      </div>
+
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.dc-tab').forEach((el,i) => el.classList.remove('active'));
+  document.querySelectorAll('.dc-tab-content').forEach(el => el.classList.remove('active'));
+
+  const tabs = document.querySelectorAll('.dc-tab');
+  tabs.forEach(t => { if(t.getAttribute('onclick').includes(tab)) t.classList.add('active'); });
+  const content = document.getElementById('tab-' + tab);
+  if (content) content.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════
+// RESUMO IA (Claude API)
+// ═══════════════════════════════════════════════
+async function gerarResumoIA(codigo) {
+  const escola = ESCOLAS.find(e => e.codigo === codigo);
+  if (!escola) return;
+
+  const iaContent = document.getElementById('iaContent');
+  iaContent.innerHTML = `
+    <div class="ia-loading">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      Analisando dados da unidade…
+    </div>
+  `;
+
+  const totalVagas = escola.vagas_creche.reduce((s, v) => s + v.aguardando, 0);
+  const ptrf_per_capita = (escola.ptrf_total / escola.alunos).toFixed(2);
+
+  const prompt = `Você é um especialista em educação pública municipal de São Paulo. Com base nos dados abaixo de uma unidade escolar, produza um parágrafo de análise contextualizada (4 a 6 frases), destacando pontos relevantes sobre a situação da unidade: capacidade atendida, eficiência orçamentária, fila de vagas (se houver) e qualquer indicador que mereça atenção da gestão ou da comunidade. Seja direto, factual e use linguagem acessível ao cidadão.
+
+DADOS DA UNIDADE:
+- Nome: ${escola.nome}
+- Tipo: ${escola.tipo}
+- DRE: ${escola.dre}
+- Alunos: ${escola.alunos}
+- Turmas: ${escola.turmas}
+- Professores: ${escola.professores}
+- Média alunos/turma: ${Math.round(escola.alunos/escola.turmas)}
+- Média alunos/professor: ${Math.round(escola.alunos/escola.professores)}
+- PTRF total: R$ ${escola.ptrf_total.toLocaleString('pt-BR')}
+- PTRF por aluno: R$ ${ptrf_per_capita}
+- Custeio: R$ ${escola.ptrf_custeio.toLocaleString('pt-BR')}
+- Capital: R$ ${escola.ptrf_capital.toLocaleString('pt-BR')}
+${totalVagas > 0 ? `- Total de crianças aguardando vaga: ${totalVagas}
+- Distribuição por grupo: ${escola.vagas_creche.map(v => v.grupo + ': ' + v.aguardando).join(', ')}` : '- Sem fila de vagas ativa'}
+
+Responda apenas com o parágrafo de análise, sem título, sem tópicos.`;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content?.map(c => c.text || '').join('') || 'Não foi possível gerar análise.';
+
+    escola.ia_summary = text;
+
+    iaContent.innerHTML = `<div class="ia-text">${text}</div>
+      <div style="margin-top:12px;font-size:11px;color:var(--sp-cinza-400);">⚡ Gerado por IA com base nos dados oficiais da SME · ${new Date().toLocaleDateString('pt-BR')}</div>`;
+  } catch (err) {
+    iaContent.innerHTML = `<div class="ia-text" style="color:var(--sp-creche);">Não foi possível conectar à IA no momento. Tente novamente.</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+function iconeEscola(tipo) {
+  return { EMEF:'🏫', EMEI:'🌱', CEI:'🍼', CEMEI:'🌿', CEU:'🏛️' }[tipo] || '🏫';
+}
+
+function formatBRL(v) {
+  return v >= 1000
+    ? 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : 'R$ ' + v.toFixed(2).replace('.', ',');
+}
+
+function toTitleCase(str) {
+  const minors = ['de','da','do','das','dos','e','em','na','no','a','o','em'];
+  return str.toLowerCase().split(' ').map((w, i) =>
+    i === 0 || !minors.includes(w) ? w.charAt(0).toUpperCase() + w.slice(1) : w
+  ).join(' ');
+}
+
+// Busca ao pressionar Enter
+document.getElementById('inputBusca').addEventListener('keydown', e => { if(e.key==='Enter') buscarEscolas(); });
+
+// Busca inicial para mostrar todas
+window.addEventListener('load', () => {
+  document.getElementById('inputBusca').value = '';
+  buscarEscolas();
+});
+</script>
+</body>
+</html>

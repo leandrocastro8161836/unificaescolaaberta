@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Educação SP — Portal Unificado SME</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── TOKENS ─────────────────────────────────────────── */
+    :root {
+      --sp-azul:      #1A3C8F;   /* azul bandeira paulistana */
+      --sp-azul-claro:#2B5CE6;
+      --sp-verde:     #0D7A4E;   /* verde parque urbano */
+      --sp-amarelo:   #f5ba08;   /* acento caloroso */
+      --sp-cinza-100: #F7F8FA;
+      --sp-cinza-200: #EAECF0;
+      --sp-cinza-600: #6B7280;
+      --sp-cinza-900: #111827;
+      --sp-creche:    #D14B2A;   /* vaga na creche */
+      --sp-escola:    #0D7A4E;   /* escola aberta */
+      --sp-livro:     #7B3FA6;   /* livro aberto / orçamento */
+      --sp-patio:     #1A3C8F;   /* pátio digital */
+
+      --radius: 12px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: var(--sp-cinza-900);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    /* ── UX ANNOTATION LAYER ────────────────────────────── */
+    .ux-note {
+      position: relative;
+    }
+    .ux-badge {
+      display: none; /* oculto por padrão, ativado pelo toggle */
+      position: absolute;
+      z-index: 100;
+      background: #FFF8DC;
+      border: 1.5px solid #E5C100;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #3A3000;
+      max-width: 280px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      pointer-events: none;
+    }
+    .ux-badge::before {
+      content: "💡 UX";
+      display: block;
+      font-weight: 700;
+      font-size: 11px;
+      margin-bottom: 4px;
+      color: #8B6000;
+    }
+    .ux-annotations-on .ux-badge { display: block; }
+    .ux-annotations-on .ux-note { outline: 2px dashed #E5C100; outline-offset: 3px; }
+
+    /* ── TOPBAR ─────────────────────────────────────────── */
+    .topbar {
+      background: var(--sp-azul);
+      color: #fff;
+      font-size: 12px;
+      padding: 6px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar a { color: #ADC4FF; text-decoration: none; }
+    .topbar a:hover { text-decoration: underline; }
+    .topbar-links { display: flex; gap: 20px; }
+
+    /* ── HEADER / NAV ───────────────────────────────────── */
+    header {
+      background: #fff;
+      border-bottom: 1px solid var(--sp-cinza-200);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: var(--sp-azul);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-family: 'Sora', sans-serif;
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: -1px;
+    }
+    .logo-img {
+      height: 40px;
+      width: auto;
+      display: block;
+    }
+
+    .logo-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .logo-text strong { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; color: var(--sp-azul); }
+    .logo-text span   { font-size: 11px; color: var(--sp-cinza-600); }
+
+    nav { display: flex; align-items: center; gap: 4px; }
+    nav a {
+      font-size: 14px; font-weight: 500; color: var(--sp-cinza-900);
+      padding: 8px 14px; border-radius: 8px; text-decoration: none;
+      transition: background .15s;
+    }
+    nav a:hover { background: var(--sp-cinza-100); }
+
+    .nav-cta {
+      background: var(--sp-azul) !important;
+      color: #fff !important;
+      padding: 8px 16px !important;
+      margin-left: 8px;
+    }
+    .nav-cta:hover { background: var(--sp-azul-claro) !important; }
+
+    /* hamburger */
+    .menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+    .menu-btn svg { display: block; }
+
+    /* ── TOGGLE UX ──────────────────────────────────────── */
+    .ux-toggle-bar {
+      background: linear-gradient(90deg,#FFFBE6,#FFF3B0);
+      border-bottom: 2px solid #E5C100;
+      text-align: center;
+      padding: 10px 24px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .ux-toggle-bar p { color: #5A4200; }
+    .ux-toggle-btn {
+      background: var(--sp-amarelo);
+      border: none; border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600; font-size: 13px;
+      padding: 7px 18px; cursor: pointer;
+      transition: background .15s;
+    }
+    .ux-toggle-btn:hover { background: #d4a000; }
+
+    /* ── HERO ───────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, var(--sp-azul) 0%, #0F2461 100%);
+      color: #fff;
+      padding: 80px 24px 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .hero-inner { position: relative; max-width: 720px; margin: 0 auto; }
+    .hero h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(28px, 5vw, 52px);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--sp-amarelo);
+    }
+    .hero p { font-size: 18px; opacity: .85; max-width: 540px; margin: 0 auto 36px; }
+
+    .search-bar {
+      display: flex;
+      background: #fff;
+      border-radius: 50px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,.25);
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .search-bar input {
+      flex: 1; border: none; outline: none;
+      padding: 16px 22px; font-size: 15px; font-family: 'Inter', sans-serif;
+      color: var(--sp-cinza-900);
+    }
+    .search-bar button {
+      background: var(--sp-amarelo);
+      border: none; cursor: pointer;
+      padding: 0 24px;
+      font-weight: 700; font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      color: #3A2E00;
+      transition: background .15s;
+    }
+    .search-bar button:hover { background: #d4a000; }
+
+    /* hero UX note position */
+    .hero .ux-note .ux-badge { top: calc(100% + 8px); left: 50%; transform: translateX(-50%); }
+
+    /* ── SERVIÇOS PRINCIPAIS ───────────────────────────── */
+    .section { max-width: 1200px; margin: 0 auto; padding: 64px 24px; }
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--sp-azul-claro);
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(22px, 3vw, 32px);
+      font-weight: 700; color: var(--sp-cinza-900);
+      margin-bottom: 8px;
+    }
+    .section-sub { color: var(--sp-cinza-600); font-size: 16px; margin-bottom: 40px; max-width: 560px; }
+
+    /* cards de serviços */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .service-card {
+      border-radius: var(--radius);
+      padding: 28px;
+      background: #fff;
+      border: 1.5px solid var(--sp-cinza-200);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      text-decoration: none;
+      display: flex; flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,0.11); }
+    .service-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    }
+    .card-creche::before  { background: var(--sp-creche); }
+    .card-escola::before  { background: var(--sp-escola); }
+    .card-livro::before   { background: var(--sp-livro); }
+    .card-patio::before   { background: var(--sp-patio); }
+
+    .card-icon {
+      width: 48px; height: 48px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; margin-bottom: 16px;
+    }
+    .ci-creche { background: #FEF0EC; }
+    .ci-escola { background: #E6F5EE; }
+    .ci-livro  { background: #F4EEF9; }
+    .ci-patio  { background: #E8EDF9; }
+
+    .card-tag {
+      font-size: 10px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .ct-creche { color: var(--sp-creche); }
+    .ct-escola { color: var(--sp-escola); }
+    .ct-livro  { color: var(--sp-livro); }
+    .ct-patio  { color: var(--sp-patio); }
+
+    .service-card h3 { font-family:'Sora',sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .service-card p  { font-size: 14px; color: var(--sp-cinza-600); flex: 1; }
+    .card-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 600;
+      margin-top: 20px; text-decoration: none;
+    }
+    .cl-creche { color: var(--sp-creche); }
+    .cl-escola { color: var(--sp-escola); }
+    .cl-livro  { color: var(--sp-livro); }
+    .cl-patio  { color: var(--sp-patio); }
+
+    /* UX note no card */
+    .service-card .ux-badge { top: 70px; left: 16px; }
+
+    /* ── ACESSO RÁPIDO ──────────────────────────────────── */
+    .quick-section {
+      background: var(--sp-cinza-100);
+      border-top: 1px solid var(--sp-cinza-200);
+      border-bottom: 1px solid var(--sp-cinza-200);
+    }
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1px;
+      background: var(--sp-cinza-200);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--sp-cinza-200);
+    }
+    .quick-item {
+      background: #fff;
+      padding: 20px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; text-align: center; text-decoration: none;
+      color: var(--sp-cinza-900);
+      transition: background .15s;
+    }
+    .quick-item:hover { background: var(--sp-cinza-100); }
+    .quick-item .qi-icon { font-size: 28px; }
+    .quick-item span { font-size: 13px; font-weight: 600; }
+
+    /* ── DADOS EM DESTAQUE ──────────────────────────────── */
+    .stats-band {
+      background: linear-gradient(135deg, var(--sp-azul) 0%, #0F2461 100%);
+      color: #fff;
+      padding: 56px 24px;
+    }
+    .stats-inner { max-width: 1200px; margin: 0 auto; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 32px;
+      margin-top: 40px;
+    }
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 800;
+      color: var(--sp-amarelo);
+      line-height: 1;
+    }
+    .stat-label { font-size: 14px; opacity: .8; margin-top: 8px; }
+
+    /* ── PAINEL ORÇAMENTÁRIO (mini Livro Aberto) ────────── */
+    .livro-section { background: #fff; }
+    .livro-card {
+      background: linear-gradient(135deg, #F4EEF9 0%, #EDE1F5 100%);
+      border: 1.5px solid #D4B8EA;
+      border-radius: var(--radius);
+      padding: 40px;
+      display: flex; gap: 40px; align-items: center;
+      flex-wrap: wrap;
+    }
+    .livro-info { flex: 1; min-width: 260px; }
+    .livro-info h3 { font-family:'Sora',sans-serif; font-size: 24px; font-weight: 700; color: var(--sp-livro); margin-bottom: 10px; }
+    .livro-info p  { color: #444; font-size: 15px; }
+    .livro-visual {
+      flex: 1; min-width: 260px;
+      background: #fff; border-radius: 10px;
+      padding: 20px; box-shadow: var(--shadow);
+    }
+    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .bar-label { font-size: 12px; width: 160px; color: var(--sp-cinza-600); }
+    .bar-track { flex: 1; height: 10px; background: var(--sp-cinza-200); border-radius: 99px; overflow: hidden; }
+    .bar-fill   { height: 100%; border-radius: 99px; background: var(--sp-livro); }
+    .bar-val { font-size: 12px; font-weight: 600; color: var(--sp-livro); min-width: 60px; text-align: right; }
+
+    /* ── NOTÍCIAS ──────────────────────────────────────── */
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .news-card {
+      border-radius: var(--radius);
+      border: 1.5px solid var(--sp-cinza-200);
+      overflow: hidden;
+      text-decoration: none; color: inherit;
+      box-shadow: var(--shadow);
+      transition: transform .15s, box-shadow .15s;
+      background: #fff;
+    }
+    .news-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,.1); }
+    .news-thumb { height: 140px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+    .news-body { padding: 20px; }
+    .news-tag { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--sp-azul-claro); margin-bottom: 8px; }
+    .news-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 8px; line-height: 1.4; }
+    .news-card time { font-size: 12px; color: var(--sp-cinza-600); }
+
+    /* ── FOOTER ─────────────────────────────────────────── */
+    footer {
+      background: var(--sp-cinza-900);
+      color: #9CA3AF;
+      padding: 48px 24px 24px;
+    }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;
+      padding-bottom: 40px; border-bottom: 1px solid #374151;
+      flex-wrap: wrap;
+    }
+    .footer-brand strong { font-family:'Sora',sans-serif; color: #fff; font-size: 16px; }
+    .footer-brand p { font-size: 13px; margin-top: 8px; line-height: 1.6; }
+    .footer-col h5 { color: #fff; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+    .footer-col a { display: block; font-size: 13px; color: #9CA3AF; text-decoration: none; margin-bottom: 8px; }
+    .footer-col a:hover { color: #fff; }
+    .footer-bottom { max-width: 1200px; margin: 20px auto 0; font-size: 12px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+    /* ── MODAL UX GUIDE ─────────────────────────────────── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.6); z-index: 200;
+      align-items: flex-start; justify-content: center;
+      padding: 24px; overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 16px;
+      max-width: 720px; width: 100%; padding: 40px;
+      position: relative; box-shadow: 0 20px 60px rgba(0,0,0,.3);
+      margin: auto;
+    }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: var(--sp-cinza-100); border: none; border-radius: 50%;
+      width: 36px; height: 36px; cursor: pointer; font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal h2 { font-family:'Sora',sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 6px; color: var(--sp-azul); }
+    .modal .subtitle { color: var(--sp-cinza-600); font-size: 15px; margin-bottom: 28px; }
+    .ux-principle {
+      display: flex; gap: 16px; margin-bottom: 20px;
+      padding: 16px; background: var(--sp-cinza-100); border-radius: 10px;
+    }
+    .ux-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--sp-azul); color: #fff;
+      font-weight: 700; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .ux-text h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .ux-text p  { font-size: 13px; color: var(--sp-cinza-600); line-height: 1.5; }
+
+    /* ── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { display: none; }
+      nav.open { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: #fff; border-bottom: 1px solid var(--sp-cinza-200); padding: 12px; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+      header { position: relative; }
+      .menu-btn { display: flex; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .topbar-links { display: none; }
+      .livro-card { flex-direction: column; }
+      .modal { padding: 24px; }
+    }
+
+    @media (max-width: 480px) {
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── ACESSIBILIDADE ──────────────────────────────────── */
+    :focus-visible {
+      outline: 3px solid var(--sp-amarelo);
+      outline-offset: 2px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- BARRA DE CONTEXTO UX (apenas no protótipo) -->
+<!--<div class="ux-toggle-bar">
+  <p>🎨 <strong>Protótipo com Guia UX</strong> — Ative as anotações para ver as decisões de design e recomendações de UX</p>
+  <button class="ux-toggle-btn" id="uxToggleBtn" onclick="toggleUX()">Ativar Anotações UX</button>
+  <button class="ux-toggle-btn" style="background:#fff;border:1.5px solid var(--sp-amarelo)" onclick="openModal()">📋 Ver Guia Completo</button>
+</div>-->
+
+<!-- TOPBAR INSTITUCIONAL -->
+<div class="topbar">
+  <span>SME — Secretaria Municipal de Educação</span>
+  <div class="topbar-links">
+    <a href="#">Acessibilidade</a>
+    <a href="#">Mapa do site</a>
+    <a href="https://sp156.prefeitura.sp.gov.br/portal">Ouvidoria</a>
+    <a href="#">Libras</a>
+  </div>
+</div>
+
+<!-- HEADER / NAV -->
+<header>
+  <div class="header-inner">
+   <a class="logo" href="https://educacao.sme.prefeitura.sp.gov.br/">
+  <img 
+    src="logo_PrefSP_horizontal_fundo-claro.png" 
+    alt="Educação SP — Secretaria Municipal de Educação"
+    class="logo-img">
+    </a>
+
+    <nav id="mainNav">
+      <a href="https://vaganacreche.sme.prefeitura.sp.gov.br/vaga-na-creche/">Creches e Vagas</a>
+      <a href="https://escolaaberta.sme.prefeitura.sp.gov.br/">Escola Aberta</a>
+      <a href="#">Orçamento</a>
+      <a href="https://dados.prefeitura.sp.gov.br/group/educacao">Dados Abertos</a>
+      <a href="#" class="nav-cta">Área do Responsável</a>
+    </nav>
+
+    <button class="menu-btn" onclick="toggleMenu()" aria-label="Abrir menu">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 6h16M3 11h16M3 16h16" stroke="#111827" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="ux-note">
+      <h1>Tudo sobre a<br/><em>educação em São Paulo</em><br/>em um só lugar.</h1>
+      <p>Acesse vagas em creches, escolas abertas, dados orçamentários e informações educacionais da rede municipal.</p>
+      <div class="ux-badge" style="top: -100px; right: -20px; left: auto; transform: none;">Título centrado no cidadão, não na estrutura interna da secretaria. Foco em tarefas concretas, não em siglas.</div>
+    </div>
+
+    <div class="ux-note" style="max-width:560px; margin: 0 auto;">
+      <div class="search-bar">
+        <input type="text" placeholder="Pesquise um serviço, escola ou informação…" aria-label="Buscar" />
+        <button onclick="location.href='pesquisa-escola.html'">Buscar</button>
+      </div>
+      <div class="ux-badge" style="top: calc(100% + 8px); left: 0; right: 0; max-width: 100%; transform: none;">Busca global unificada: o maior ganho da unificação. O cidadão não precisa saber a qual site cada serviço pertence.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVIÇOS PRINCIPAIS -->
+<div class="section">
+  <p class="section-label">Serviços</p>
+  <h2 class="section-title">O que você precisa hoje?</h2>
+  <p class="section-sub">Quatro ferramentas, antes em sites separados, reunidas em uma navegação coerente.</p>
+
+  <div class="services-grid">
+
+    <!-- VAGA NA CRECHE -->
+    <a href="#" class="service-card card-creche ux-note" tabindex="0">
+      <div class="card-icon ci-creche">🍼</div>
+      <span class="card-tag ct-creche">Vaga na Creche</span>
+      <h3>Solicitar vaga em creche</h3>
+      <p>Inscreva seu filho, acompanhe a fila de espera e receba alertas de chamadas para creches próximas à sua casa.</p>
+      <span class="card-link cl-creche">Acessar serviço <span>→</span></span>
+      <div class="ux-badge" style="bottom: 16px; right: 16px; top: auto; left: auto;">Ação primária claramente descrita. Evite "clique aqui" — nomeie o serviço real que o cidadão vai executar.</div>
+    </a>
+
+    <!-- ESCOLA ABERTA -->
+    <a href="#" class="service-card card-escola ux-note" tabindex="0">
+      <div class="card-icon ci-escola">🏫</div>
+      <span class="card-tag ct-escola">Escola Aberta</span>
+      <h3>Informações sobre as escolas</h3>
+      <p>Confira as informações detalhadas das escolas.  PPP, PEA, Servidores e muito mais...</p>
+      <span class="card-link cl-escola">Mais informações<span>→</span></span>
+      <div class="ux-badge" style="bottom: 16px; right: 16px; top: auto; left: auto;">Cor diferenciada por serviço reforça identidade de cada área sem fragmentar a experiência — o usuário aprende o código rapidamente.</div>
+    </a>
+
+    <!-- LIVRO ABERTO -->
+    <a href="#" class="service-card card-livro ux-note" tabindex="0">
+      <div class="card-icon ci-livro">📊</div>
+      <span class="card-tag ct-livro">Livro Aberto</span>
+      <h3>Orçamento da educação</h3>
+      <p>Explore como os R$ 8,7 bilhões anuais da educação são distribuídos por região, escola e etapa de ensino.</p>
+      <span class="card-link cl-livro">Explorar dados <span>→</span></span>
+      <div class="ux-badge" style="bottom: 16px; right: 16px; top: auto; left: auto;">Dados quantitativos no card aumentam credibilidade e dão ao cidadão uma razão imediata para clicar.</div>
+    </a>
+
+    <!-- PÁTIO DIGITAL -->
+    <a href="#" class="service-card card-patio ux-note" tabindex="0">
+      <div class="card-icon ci-patio">💡</div>
+      <span class="card-tag ct-patio">Pátio Digital</span>
+      <h3>Governo Aberto e Inovação</h3>
+      <p>Participe das iniciativas de transparência ativa, dados abertos e construção colaborativa de serviços digitais.</p>
+      <span class="card-link cl-patio">Conhecer iniciativas <span>→</span></span>
+      <div class="ux-badge" style="bottom: 16px; right: 16px; top: auto; left: auto;">Pátio Digital é um "hub" — neste portal ele ocupa papel de meta-serviço. Pode ter card menos proeminente que os serviços transacionais.</div>
+    </a>
+
+  </div>
+</div>
+
+<!-- ACESSO RÁPIDO -->
+<div class="quick-section">
+  <div class="section" style="padding-top: 40px; padding-bottom: 40px;">
+    <p class="section-label">Atalhos</p>
+    <h2 class="section-title" style="margin-bottom: 28px;">Acesso rápido</h2>
+    <div class="quick-grid">
+      <a href="#" class="quick-item"><span class="qi-icon">📍</span><span>Encontrar escola</span></a>
+      <a href="#" class="quick-item"><span class="qi-icon">📅</span><span>Calendário escolar</span></a>
+      <a href="#" class="quick-item"><span class="qi-icon">📋</span><span>Matrícula</span></a>
+      <a href="#" class="quick-item"><span class="qi-icon">🍽️</span><span>Cardápio da merenda</span></a>
+      <a href="#" class="quick-item"><span class="qi-icon">📊</span><span>Dados abertos</span></a>
+      <a href="#" class="quick-item"><span class="qi-icon">📞</span><span>Fale com a SME</span></a>
+    </div>
+  </div>
+</div>
+
+<!-- DADOS EM DESTAQUE -->
+<div class="stats-band ux-note">
+  <div class="stats-inner">
+    <p class="section-label" style="color: #ADC4FF;">Rede Municipal — 2024</p>
+    <h2 class="section-title" style="color: #fff;">A educação de São Paulo em números</h2>
+    <div class="stats-grid">
+      <div class="stat-item"><div class="stat-num">1.510</div><div class="stat-label">Unidades educacionais</div></div>
+      <div class="stat-item"><div class="stat-num">R$ 8,7bi</div><div class="stat-label">Orçamento anual</div></div>
+      <div class="stat-item"><div class="stat-num">933</div><div class="stat-label">Unidades de educação infantil</div></div>
+      <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">Zonas atendidas</div></div>
+    </div>
+  </div>
+  <div class="ux-badge" style="position:relative; display:none; margin-top: 16px; max-width: 320px;">A faixa de dados ancora o portal como fonte confiável. Conecte direto ao Livro Aberto para aprofundamento.</div>
+</div>
+
+<!-- PAINEL ORÇAMENTÁRIO MINI -->
+<div class="livro-section">
+  <div class="section">
+    <p class="section-label">Livro Aberto</p>
+    <h2 class="section-title">Como o orçamento é distribuído?</h2>
+    <p class="section-sub">Um recorte do painel interativo de regionalização orçamentária.</p>
+
+    <div class="livro-card ux-note">
+      <div class="livro-info">
+        <h3>Distribuição por etapa de ensino</h3>
+        <p>Os recursos são alocados entre Educação Infantil, Ensino Fundamental, EJA e Educação Especial. Explore o mapa interativo completo para filtrar por região e escola.</p>
+        <a href="#" class="card-link cl-livro" style="margin-top: 20px; display:inline-flex;">Abrir painel completo →</a>
+      </div>
+      <div class="livro-visual">
+        <p style="font-size:12px; font-weight:700; color: var(--sp-cinza-600); margin-bottom: 16px;">RECURSOS POR ETAPA (2019)</p>
+        <div class="bar-row">
+          <span class="bar-label">Ensino Fundamental e Médio</span>
+          <div class="bar-track"><div class="bar-fill" style="width:52%"></div></div>
+          <span class="bar-val">R$ 4,5bi</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Educação Infantil</span>
+          <div class="bar-track"><div class="bar-fill" style="width:47%"></div></div>
+          <span class="bar-val">R$ 4,1bi</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">EJA e Profissional</span>
+          <div class="bar-track"><div class="bar-fill" style="width:8%"></div></div>
+          <span class="bar-val">R$ 65mi</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Ed. Especial Bilíngue</span>
+          <div class="bar-track"><div class="bar-fill" style="width:3%"></div></div>
+          <span class="bar-val">R$ 23mi</span>
+        </div>
+      </div>
+      <div class="ux-badge" style="top: -60px; right: 0; left: auto;">Traga um recorte real dos dados para a home — isso elimina a barreira de entrada ao painel completo e mostra valor imediato.</div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTÍCIAS -->
+<div style="background: var(--sp-cinza-100); border-top: 1px solid var(--sp-cinza-200);">
+  <div class="section">
+    <p class="section-label">Novidades</p>
+    <h2 class="section-title">Últimas notícias e eventos</h2>
+    <p class="section-sub">Comunicados, editais e agenda da Secretaria Municipal de Educação.</p>
+
+    <div class="news-grid">
+      <a href="#" class="news-card">
+        <div class="news-thumb" style="background:#E8EDF9;">📢</div>
+        <div class="news-body">
+          <p class="news-tag">Pátio Digital</p>
+          <h4>Nova estratégia de Transformação Digital e Governo Aberto na Educação</h4>
+          <time>5 jun 2025</time>
+        </div>
+      </a>
+      <a href="#" class="news-card">
+        <div class="news-thumb" style="background:#FEF0EC;">🍼</div>
+        <div class="news-body">
+          <p class="news-tag">Vaga na Creche</p>
+          <h4>Abertura de chamadas para creches — Zona Leste e Zona Sul</h4>
+          <time>2 jun 2025</time>
+        </div>
+      </a>
+      <a href="#" class="news-card">
+        <div class="news-thumb" style="background:#E6F5EE;">🏫</div>
+        <div class="news-body">
+          <p class="news-tag">Escola Aberta</p>
+          <h4>Programação especial de junho com oficinas culturais em 80 unidades</h4>
+          <time>1 jun 2025</time>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <strong>Educação SP</strong>
+      <p>Portal unificado da Secretaria Municipal de Educação de São Paulo. Reúne os serviços Vaga na Creche, Escola Aberta, Livro Aberto e Pátio Digital.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Serviços</h5>
+      <a href="#">Vaga na Creche</a>
+      <a href="#">Escola Aberta</a>
+      <a href="#">Livro Aberto</a>
+      <a href="#">Pátio Digital</a>
+    </div>
+    <div class="footer-col">
+      <h5>Informações</h5>
+      <a href="#">Sobre a SME</a>
+      <a href="#">Dados abertos</a>
+      <a href="#">Legislação</a>
+      <a href="#">Ouvidoria</a>
+    </div>
+    <div class="footer-col">
+      <h5>Acessibilidade</h5>
+      <a href="#">Alto contraste</a>
+      <a href="#">Libras (VLibras)</a>
+      <a href="#">Mapa do site</a>
+      <a href="#">Política de privacidade</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Prefeitura de São Paulo — Secretaria Municipal de Educação</span>
+    <span>CNPJ 46.392.130/0001-06</span>
+  </div>
+</footer>
+
+<!-- MODAL GUIA UX COMPLETO -->
+<div class="modal-overlay" id="uxModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>Guia de UX — Portal Unificado SME</h2>
+    <p class="subtitle">Recomendações para orientar o desenvolvimento do portal unificado da Secretaria Municipal de Educação de São Paulo.</p>
+
+    <div class="ux-principle">
+      <div class="ux-num">1</div>
+      <div class="ux-text">
+        <h4>Unificação por jornada, não por organograma</h4>
+        <p>O portal deve ser organizado pelo que o cidadão precisa fazer (solicitar vaga, ver programação, consultar orçamento), nunca pela estrutura interna da secretaria. Evite nomes de projetos internos como títulos de seções.</p>
+      </div>
+    </div>
+
+    <div class="ux-principle">
+      <div class="ux-num">2</div>
+      <div class="ux-text">
+        <h4>Busca global como espinha dorsal</h4>
+        <p>O maior ganho da unificação é uma busca que cobre todos os serviços. O cidadão não sabe — nem deveria precisar saber — a qual sub-site cada informação pertence. Invista em uma busca semântica robusta desde o início.</p>
+      </div>
+    </div>
+
+    <div class="ux-principle">
+      <div class="ux-num">3</div>
+      <div class="ux-text">
+        <h4>Identidade de cor por serviço (não por site)</h4>
+        <p>Mantenha a distinção visual entre Creche (laranja), Escola Aberta (verde), Livro Aberto (roxo) e Pátio Digital (azul), mas dentro de uma paleta institucional coerente. Isso permite migrar usuários antigos sem desorientá-los.</p>
+      </div>
+    </div>
+
+    <div class="ux-principle">
+      <div class="ux-num">4</div>
+      <div class="ux-text">
+        <h4>Progressive disclosure nos dados (Livro Aberto)</h4>
+        <p>O painel orçamentário completo é denso demais para a home. Mostre um recorte do dado mais relevante na página principal e ofereça o link para aprofundamento. Reduz a barreira de entrada e ancora o portal como fonte de dados.</p>
+      </div>
+    </div>
+
+    <div class="ux-principle">
+      <div class="ux-num">5</div>
+      <div class="ux-text">
+        <h4>Autenticação única e área do responsável</h4>
+        <p>Hoje um responsável precisa criar contas separadas para acompanhar a fila da creche, confirmar matrícula e acessar outros serviços. Um login único (CPF + senha ou Gov.br) reduz fricção e fideliza o usuário ao portal.</p>
+      </div>
+    </div>
+
+    <div class="ux-principle">
+      <div class="ux-num">6</div>
+      <div class="ux-text">
+        <h4>Mobile-first obrigatório</h4>
+        <p>O perfil dos usuários de serviços públicos em São Paulo acessa majoritariamente por celular, frequentemente em redes lentas. Priorize performance (Core Web Vitals), formulários de uma coluna, botões grandes (mín. 44×44px) e suporte a leitores de tela.</p>
+      </div>
+    </div>
+
+    <div class="ux-principle">
+      <div class="ux-num">7</div>
+      <div class="ux-text">
+        <h4>Preserve as URLs existentes com redirecionamento</h4>
+        <p>Os domínios atuais (vaganacreche.sme…, escolaaberta.sme…) têm tráfego orgânico, bookmarks e links externos. Configure redirecionamentos 301 permanentes para as novas rotas do portal unificado sem quebrar nada.</p>
+      </div>
+    </div>
+
+    <div class="ux-principle">
+      <div class="ux-num">8</div>
+      <div class="ux-text">
+        <h4>Acessibilidade como requisito, não ajuste posterior</h4>
+        <p>WCAG 2.1 nível AA é exigência legal para portais públicos brasileiros (Lei nº 13.146/2015). Isso inclui: contraste mínimo 4,5:1, foco visível em teclado, alternativas textuais em imagens, compatibilidade com VLibras e leitores de tela.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleMenu() {
+    document.getElementById('mainNav').classList.toggle('open');
+  }
+
+  function toggleUX() {
+    const body = document.body;
+    const btn  = document.getElementById('uxToggleBtn');
+    const on   = body.classList.toggle('ux-annotations-on');
+    btn.textContent = on ? 'Desativar Anotações UX' : 'Ativar Anotações UX';
+
+    // Ativa badge da stats-band manualmente (posição relativa dentro do contexto)
+    document.querySelectorAll('.stats-band .ux-badge').forEach(b => {
+      b.style.display = on ? 'block' : 'none';
+    });
+  }
+
+  function openModal()  { document.getElementById('uxModal').classList.add('open'); }
+  function closeModal() { document.getElementById('uxModal').classList.remove('open'); }
+
+  // Fecha modal clicando fora
+  document.getElementById('uxModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // Escape fecha modal
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+  });
+</script>
+</body>
+</html>
