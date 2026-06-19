@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Calendário Escolar 2026 — Educação SP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --sp-azul:       #1A3C8F;
+    --sp-azul-claro: #2B5CE6;
+    --sp-verde:      #0D7A4E;
+    --sp-amarelo:    #F5B700;
+    --sp-creche:     #D14B2A;
+    --sp-livro:      #7B3FA6;
+    --sp-cinza-50:   #F9FAFB;
+    --sp-cinza-100:  #F3F4F6;
+    --sp-cinza-200:  #E5E7EB;
+    --sp-cinza-400:  #9CA3AF;
+    --sp-cinza-600:  #6B7280;
+    --sp-cinza-900:  #111827;
+    --radius: 12px;
+    --shadow: 0 2px 12px rgba(0,0,0,.07);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,.12);
+
+    /* categorias de evento */
+    --cat-avaliacao:  #D14B2A;
+    --cat-formacao:   #7B3FA6;
+    --cat-familia:    #0D7A4E;
+    --cat-organizacao:#1A3C8F;
+    --cat-sme:        #B07D12;
+    --cat-ferias:     #6B7280;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; background: var(--sp-cinza-50); color: var(--sp-cinza-900); font-size: 15px; line-height: 1.6; }
+
+  /* ── TOP BAR ── */
+  .topbar { background: var(--sp-azul); color: #fff; font-size: 12px; padding: 6px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar a { color: #ADC4FF; text-decoration: none; }
+  .topbar-links { display: flex; gap: 20px; }
+
+  /* ── HEADER ── */
+  header.site-header { background: #fff; border-bottom: 1px solid var(--sp-cinza-200); position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 8px rgba(0,0,0,.06); }
+  .header-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+ .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: var(--sp-azul);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-family: 'Sora', sans-serif;
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: -1px;
+    }
+    .logo-img {
+      height: 50px;
+      width: auto;
+      display: block;
+    }
+  .logo-text strong { font-family: 'Sora', sans-serif; font-size: 15px; color: var(--sp-azul); }
+  .logo-text span { font-size: 11px; color: var(--sp-cinza-600); display: block; line-height: 1; }
+  .breadcrumb { font-size: 13px; color: var(--sp-cinza-600); display: flex; align-items: center; gap: 6px; }
+  .breadcrumb a { color: var(--sp-azul-claro); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ── PAGE HERO ── */
+  .page-hero { background: linear-gradient(135deg, var(--sp-azul) 0%, #0F2461 100%); color: #fff; padding: 36px 24px 44px; }
+  .page-hero-inner { max-width: 1280px; margin: 0 auto; }
+  .page-hero h1 { font-family: 'Sora', sans-serif; font-size: clamp(22px, 3.5vw, 36px); font-weight: 800; margin-bottom: 6px; }
+  .page-hero p  { opacity: .8; font-size: 14px; }
+  .page-hero .ref-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 99px; padding: 5px 14px; font-size: 12px; margin-top: 12px; }
+
+  /* ── MAIN ── */
+  .main { max-width: 1280px; margin: 0 auto; padding: 28px 24px 56px; }
+
+  /* ── NAV DE MESES ── */
+  .months-panel { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; margin-bottom: 24px; }
+  .months-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+  .month-btn {
+    border: 1.5px solid var(--sp-cinza-200); background: #fff; color: var(--sp-cinza-600);
+    border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600;
+    font-family: 'Inter', sans-serif; cursor: pointer; transition: all .15s;
+  }
+  .month-btn:hover { border-color: var(--sp-azul-claro); color: var(--sp-azul-claro); }
+  .month-btn.active { background: var(--sp-azul); border-color: var(--sp-azul); color: #fff; }
+
+  /* ── CALENDAR CARD ── */
+  .calendar-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-lg); overflow: hidden; }
+  .cal-header { padding: 20px 24px; border-bottom: 1px solid var(--sp-cinza-200); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .cal-header h2 { font-family: 'Sora', sans-serif; font-size: 20px; font-weight: 700; color: var(--sp-azul); }
+  .cal-nav-arrows { display: flex; gap: 6px; }
+  .arrow-btn {
+    width: 34px; height: 34px; border-radius: 8px; border: 1.5px solid var(--sp-cinza-200);
+    background: #fff; cursor: pointer; font-size: 15px; color: var(--sp-azul);
+    display: flex; align-items: center; justify-content: center; transition: background .15s;
+  }
+  .arrow-btn:hover { background: var(--sp-cinza-100); }
+
+  .cal-body { padding: 20px 24px 24px; }
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .day-name {
+    text-align: center; font-weight: 700; font-size: 11px; letter-spacing: .05em;
+    text-transform: uppercase; color: var(--sp-cinza-600); background: var(--sp-cinza-100);
+    padding: 8px 4px; border-radius: 6px;
+  }
+  .day {
+    min-height: 92px; border: 1.5px solid var(--sp-cinza-200); border-radius: 8px;
+    padding: 6px; font-size: 11px; background: #fff; transition: border-color .15s;
+    display: flex; flex-direction: column; gap: 3px; overflow: hidden;
+  }
+  .day:hover { border-color: var(--sp-azul-claro); }
+  .day.empty { background: transparent; border: none; }
+  .day.today { border-color: var(--sp-amarelo); border-width: 2px; background: #FFFBEB; }
+  .day-num { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 13px; color: var(--sp-cinza-900); flex-shrink: 0; }
+  .day.weekend .day-num { color: var(--sp-cinza-400); }
+
+  .event-pill {
+    font-size: 9.5px; line-height: 1.3; padding: 2px 5px; border-radius: 4px;
+    border-left: 3px solid; font-weight: 600; white-space: normal;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .ev-avaliacao   { background: #FEF0EC; border-color: var(--cat-avaliacao); color: #8A3018; }
+  .ev-formacao    { background: #F4EEF9; border-color: var(--cat-formacao); color: #4F2870; }
+  .ev-familia     { background: #E6F5EE; border-color: var(--cat-familia); color: #095636; }
+  .ev-organizacao { background: #E8EDF9; border-color: var(--cat-organizacao); color: var(--sp-azul); }
+  .ev-sme         { background: #FBF1DD; border-color: var(--cat-sme); color: #7A5A0C; }
+  .ev-ferias      { background: var(--sp-cinza-100); border-color: var(--cat-ferias); color: var(--sp-cinza-600); }
+
+  @media (max-width: 700px) {
+    .day { min-height: 64px; font-size: 9.5px; padding: 4px; }
+    .day-num { font-size: 11px; }
+    .event-pill { font-size: 8px; padding: 1px 3px; }
+    .day-name { font-size: 9px; padding: 6px 2px; }
+  }
+  @media (max-width: 480px) {
+    .grid { gap: 3px; }
+    .day { min-height: 50px; }
+    .event-pill { display: none; }
+    .day.has-event::after { content: ''; display: block; width: 5px; height: 5px; border-radius: 50%; background: var(--sp-azul-claro); margin-top: 2px; }
+  }
+
+  /* ── LEGENDA ── */
+  .legend-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 24px; margin-top: 20px; }
+  .legend-card h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--sp-cinza-600); margin-bottom: 14px; }
+  .legend-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 99px; }
+  .li-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── PRÓXIMOS EVENTOS ── */
+  .upcoming-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 24px; margin-top: 20px; }
+  .upcoming-card h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--sp-cinza-600); margin-bottom: 14px; }
+  .upcoming-list { display: flex; flex-direction: column; gap: 10px; }
+  .upcoming-item { display: flex; align-items: center; gap: 14px; padding: 10px 14px; background: var(--sp-cinza-50); border-radius: 8px; }
+  .ui-date { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 14px; color: var(--sp-azul); min-width: 52px; text-align: center; background: #E8EDF9; border-radius: 8px; padding: 6px 4px; line-height: 1.1; }
+  .ui-date small { display: block; font-size: 9px; font-weight: 600; text-transform: uppercase; color: var(--sp-azul-claro); }
+  .ui-text { font-size: 13px; font-weight: 600; flex: 1; }
+  .ui-empty { font-size: 13px; color: var(--sp-cinza-400); text-align: center; padding: 12px; }
+
+  :focus-visible { outline: 3px solid var(--sp-amarelo); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <span>SME — Secretaria Municipal de Educação</span>
+  <div class="topbar-links">
+    <a href="#">Acessibilidade</a>
+    <a href="#">Ouvidoria</a>
+    <a href="#">Libras</a>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+      <a class="logo" href="https://educacao.sme.prefeitura.sp.gov.br/">
+      <img src="logo_PrefSP_horizontal_fundo-claro.png" alt="Educação SP — Secretaria Municipal de Educação"class="logo-img">
+      </a>
+    <div class="breadcrumb">
+      <a href="index.html">Início</a> <span>›</span> <strong>Calendário Escolar</strong>
+    </div>
+  </div>
+</header>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <h1>📅 Calendário Escolar 2026</h1>
+    <p>Datas letivas, avaliações, formações e eventos da rede municipal de ensino de São Paulo.</p>
+    <a href="https://diariooficial.prefeitura.sp.gov.br/md_epubli_visualizar.php?6vW3IRheIppLoLIXH0wyffP1yuNDpaE9KKRSh8I4ACd_oueRkZDRllcSUKcjtBza6IpdOvb_BgHpJB1i8iTOv3gBHPywXJfRMxZMy04_iAQjYLdG-dimTLoPr_VmUXqL" class="ref-badge" target="_blank">📄 Instrução Normativa SME nº 49/2025 — Anexos I a VII</a>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- NAV DE MESES -->
+  <div class="months-panel">
+    <div class="months-nav" id="months"></div>
+  </div>
+
+  <!-- CALENDÁRIO -->
+  <div class="calendar-card">
+    <div class="cal-header">
+      <h2 id="monthTitle"></h2>
+      <div class="cal-nav-arrows">
+        <button class="arrow-btn" onclick="navMonth(-1)" aria-label="Mês anterior">‹</button>
+        <button class="arrow-btn" onclick="navMonth(1)" aria-label="Mês seguinte">›</button>
+      </div>
+    </div>
+    <div class="cal-body">
+      <div class="grid" id="calendarGrid"></div>
+    </div>
+  </div>
+
+  <!-- PRÓXIMOS EVENTOS -->
+  <div class="upcoming-card">
+    <h3>⏱️ Próximos eventos</h3>
+    <div class="upcoming-list" id="upcomingList"></div>
+  </div>
+
+  <!-- LEGENDA -->
+  <div class="legend-card">
+    <h3>Legenda</h3>
+    <div class="legend-grid">
+      <div class="legend-item" style="background:#FEF0EC; color:#8A3018;"><span class="li-dot" style="background:var(--cat-avaliacao)"></span> 📊 Avaliação</div>
+      <div class="legend-item" style="background:#F4EEF9; color:#4F2870;"><span class="li-dot" style="background:var(--cat-formacao)"></span> 🎓 Formação</div>
+      <div class="legend-item" style="background:#E6F5EE; color:#095636;"><span class="li-dot" style="background:var(--cat-familia)"></span> 👨‍👩‍👧 Família</div>
+      <div class="legend-item" style="background:#E8EDF9; color:var(--sp-azul);"><span class="li-dot" style="background:var(--cat-organizacao)"></span> 🏫 Organização</div>
+      <div class="legend-item" style="background:#FBF1DD; color:#7A5A0C;"><span class="li-dot" style="background:var(--cat-sme)"></span> 📅 Evento SME</div>
+      <div class="legend-item" style="background:var(--sp-cinza-100); color:var(--sp-cinza-600);"><span class="li-dot" style="background:var(--cat-ferias)"></span> 🏖️ Férias/Recesso</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DADOS — IN SME 49/2025
+// ═══════════════════════════════════════════════
+const months = [
+  "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+  "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+];
+
+// Categoria mapeia para classe CSS de cor
+function categoriaDoEvento(text) {
+  if (text.includes('📊')) return 'avaliacao';
+  if (text.includes('🎓')) return 'formacao';
+  if (text.includes('👨‍👩‍👧')) return 'familia';
+  if (text.includes('🏫')) return 'organizacao';
+  if (text.includes('📅')) return 'sme';
+  return 'ferias';
+}
+
+const events = [
+  { start: "2026-02-04", end: "2026-02-04", text: "Início do ano letivo 🏫" },
+  { start: "2026-01-02", end: "2026-01-31", text: "Férias escolares" },
+  { start: "2026-07-06", end: "2026-07-17", text: "Recesso escolar" },
+  { start: "2026-02-07", end: "2026-02-07", text: "Dia da Família – EI 👨‍👩‍👧" },
+  { start: "2026-02-28", end: "2026-02-28", text: "Dia da Família – EF/EJA 👨‍👩‍👧" },
+  { start: "2026-06-08", end: "2026-06-12", text: "Jornada Pedagógica 🎓" },
+  { start: "2026-09-26", end: "2026-09-26", text: "Dia de Recomposição 📊" },
+  { start: "2026-10-20", end: "2026-10-22", text: "Prova São Paulo 📊" },
+  { start: "2026-09-19", end: "2026-09-19", text: "Encontro de Leitura Literária 📅" },
+  { start: "2026-10-24", end: "2026-10-24", text: "Encontro de Leitura Literária 📅" },
+  { start: "2026-12-22", end: "2026-12-22", text: "Encerramento do ano letivo" }
+];
+
+let mesAtual = 0;
+const ANO = 2026;
+
+// ═══════════════════════════════════════════════
+// NAV DE MESES
+// ═══════════════════════════════════════════════
+const nav = document.getElementById("months");
+months.forEach((m, i) => {
+  const b = document.createElement("button");
+  b.className = "month-btn";
+  b.textContent = m;
+  b.onclick = () => loadMonth(i);
+  nav.appendChild(b);
+});
+
+function navMonth(delta) {
+  let novo = mesAtual + delta;
+  if (novo < 0) novo = 11;
+  if (novo > 11) novo = 0;
+  loadMonth(novo);
+}
+
+// ═══════════════════════════════════════════════
+// RENDER DO MÊS
+// ═══════════════════════════════════════════════
+function loadMonth(m) {
+  mesAtual = m;
+  [...nav.children].forEach(b => b.classList.remove("active"));
+  nav.children[m].classList.add("active");
+  nav.children[m].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+
+  const first = new Date(ANO, m, 1);
+  const last  = new Date(ANO, m + 1, 0);
+  document.getElementById("monthTitle").textContent = months[m] + " de " + ANO;
+
+  const grid = document.getElementById("calendarGrid");
+  grid.innerHTML = "";
+
+  ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"].forEach(d => {
+    const e = document.createElement("div");
+    e.className = "day-name";
+    e.textContent = d;
+    grid.appendChild(e);
+  });
+
+  let start = (first.getDay() + 6) % 7;
+  for (let i = 0; i < start; i++) {
+    const empty = document.createElement("div");
+    empty.className = "day empty";
+    grid.appendChild(empty);
+  }
+
+  const hoje = new Date();
+  const hojeStr = hoje.toISOString().slice(0,10);
+
+  for (let d = 1; d <= last.getDate(); d++) {
+    const dateObj = new Date(ANO, m, d);
+    const diaSemana = (dateObj.getDay() + 6) % 7; // 0=Seg ... 6=Dom
+    const dateStr = `${ANO}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+
+    const cell = document.createElement("div");
+    cell.className = "day";
+    if (diaSemana >= 5) cell.classList.add("weekend");
+    if (dateStr === hojeStr) cell.classList.add("today");
+
+    const numEl = document.createElement("div");
+    numEl.className = "day-num";
+    numEl.textContent = d;
+    cell.appendChild(numEl);
+
+    const evsDoDia = events.filter(ev => dateStr >= ev.start && dateStr <= ev.end);
+    if (evsDoDia.length) cell.classList.add("has-event");
+
+    evsDoDia.forEach(ev => {
+      const cat = categoriaDoEvento(ev.text);
+      const pill = document.createElement("div");
+      pill.className = "event-pill ev-" + cat;
+      pill.textContent = ev.text.replace(/[📊🎓👨‍👩‍👧🏫📅]/g, '').trim();
+      cell.appendChild(pill);
+    });
+
+    grid.appendChild(cell);
+  }
+
+  renderUpcoming();
+}
+
+// ═══════════════════════════════════════════════
+// PRÓXIMOS EVENTOS (a partir de hoje, ou do mês selecionado)
+// ═══════════════════════════════════════════════
+function renderUpcoming() {
+  const list = document.getElementById('upcomingList');
+
+  // Base de referência: hoje se estiver dentro de 2026, senão início do ano
+  let refDate = new Date();
+  const refYear = refDate.getFullYear();
+  const refStr = (refYear === ANO) ? refDate.toISOString().slice(0,10) : `${ANO}-01-01`;
+
+  const futuros = events
+    .filter(ev => ev.end >= refStr)
+    .sort((a,b) => a.start.localeCompare(b.start))
+    .slice(0, 5);
+
+  if (!futuros.length) {
+    list.innerHTML = `<div class="ui-empty">Nenhum evento futuro cadastrado.</div>`;
+    return;
+  }
+
+  list.innerHTML = futuros.map(ev => {
+    const d = new Date(ev.start + 'T00:00:00');
+    const dia = d.getDate();
+    const mesAbrev = months[d.getMonth()].slice(0,3);
+    const cat = categoriaDoEvento(ev.text);
+    const cleanText = ev.text.replace(/[📊🎓👨‍👩‍👧🏫📅]/g, '').trim();
+    return `
+      <div class="upcoming-item">
+        <div class="ui-date"><small>${mesAbrev}</small>${dia}</div>
+        <div class="ui-text">${cleanText}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Inicializa em fevereiro (mês de início do ano letivo) ou no mês atual se estivermos em 2026
+const agora = new Date();
+const mesInicial = (agora.getFullYear() === ANO) ? agora.getMonth() : 1;
+loadMonth(mesInicial);
+</script>
+</body>
+</html>
